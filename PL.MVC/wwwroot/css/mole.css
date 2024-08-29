@@ -1,0 +1,56 @@
+﻿body {
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+    background: url("/img/mario-bg.jpg");
+    background-size: cover;
+}
+
+#board {
+    width: 600px;
+    height: 600px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    background: url("/img/soil.png");
+    background-size: cover;
+    border: 3px solid white;
+    border-radius: 25px;
+}
+
+#board div {
+    background-image: url("/img/pipe.png");
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+#board div img {
+    width: 75px;
+    height: 75px;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-drag: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
+
+#scores {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+#scores div {
+    margin: 0 10px;
+}
+
+.mole-purple {
+    filter: brightness(0.8) sepia(1) hue-rotate(270deg) saturate(1);
+}
+
+.mole-green {
+    filter: brightness(0.8) sepia(1) hue-rotate(120deg) saturate(1);
+}
