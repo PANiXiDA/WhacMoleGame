@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using PL.MVC.Infrastructure.Claims;
-using PL.MVC.Infrastructure.Models;
 using PL.MVC.Infrastructure.Responses;
 using PL.MVC.Infrastructure.ViewModel;
 using System.Security.Claims;
@@ -22,18 +21,18 @@ namespace PL.MVC.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            return RedirectToAction("Authorization", "Account");
         }
 
-        public IActionResult Login()
+        public IActionResult Authorization()
         {
             return View();
         }
 
         [HttpPost]
-        public async Task<JsonResult> Authorization([FromBody] AuthorizationViewModel model)
+        public async Task<JsonResult> Authorization([FromBody] LoginViewModel model)
         {
-            var response = new ResponseAuthorizationModel();
+            var response = new BaseResponse();
             var user = await _userBL.VerifyPasswordAsync(model.Login, model.Password);
 
             if (user == null)

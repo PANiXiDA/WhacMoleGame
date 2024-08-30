@@ -1,0 +1,56 @@
+﻿@{
+    ViewData["Title"] = "Account";
+}
+
+<main class="account">
+    <h1 class="account__title">Личный кабинет</h1>
+    <div class="account__wrapper">
+        <div class="account__navigation">
+            <a asp-action="Index" asp-controller="Game" asp-area="Public" class="account__navigation-item" id="playButton">Играть</a>
+            <div class="account__navigation-item active" data-acnavTab="1">Профиль</div>
+            <div class="account__navigation-item" data-acnavTab="2">История игр</div>
+            <div class="account__navigation-item" data-acnavTab="3">Админ</div>
+            <a asp-action="Logout" asp-controller="Account" asp-area="Public" class="account__navigation-item" id="logoutLink">Выход</a>
+        </div>
+        <div class="account__content">
+            <div class="account__info account__info--display account__info--opacity" data-infnavTab="1">
+                <div class="subtitle">Профиль</div>
+                <div class="account__profile">
+                    <p>Количество сыгранных игр: <span id="gamesPlayed">0</span></p>
+                    <p>Статистика побед/поражений: <span id="winsLosses">0/0</span></p>
+                    <p>Максимально набранное количество очков: <span id="highestScore">0</span></p>
+                    <form id="profileForm">
+                        <label for="login">Логин:</label>
+                        <input type="text" id="login" name="login">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email">
+                        <label for="phone">Номер телефона:</label>
+                        <input type="text" id="phone" name="phone">
+                        <button type="submit">Сохранить</button>
+                    </form>
+                </div>
+            </div>
+            <div class="account__info" data-infnavTab="2">
+                <div class="subtitle">История игр</div>
+                <select id="gameFilter" class="custom-select">
+                    <option value="all">Все игры</option>
+                    <!-- Add options for filtering -->
+                </select>
+                <div class="account__history">
+                    <!-- Display played games here -->
+                </div>
+            </div>
+
+            <!-- Admin Section -->
+            <div class="account__info" data-infnavTab="3">
+                <div class="subtitle">Админ</div>
+                <div class="account__admin">
+                    <h2>Пользователи</h2>
+                    <ul id="userList">
+                        <!-- Display list of users with options to add/remove -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>

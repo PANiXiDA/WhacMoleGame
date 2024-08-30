@@ -1,9 +1,47 @@
 ﻿@{
-    ViewData["Title"] = "Whac a Mole";
+    ViewData["Title"] = "Home";
 }
 
-<body>
-    <h1>Whac a Mole</h1>
-    <div id="scores"></div>
-    <div id="board"></div>
-</body>
+<main class="container">
+    <div class="game-info">
+        <h1>Whack-a-Mole</h1>
+        <p>Welcome to Whack-a-Mole!
+            This exciting game will test your reflexes as you try to whack as many moles as possible before time runs out.
+            The game features engaging graphics and sound effects that will keep you entertained for hours.
+            Can you get the highest score?</p>
+        <div class="video-wrapper">
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/FwZdvZKTWCI?si=Kd_8tlukNHbmyHgV" title="YouTube video player"
+            frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        </div>
+        <a asp-controller="Account" asp-action="Index" class="btn-play">Play</a>
+    </div>
+
+    <section class="reviews">
+        <h2>What Players Say</h2>
+        <div class="review">
+            <div class="review-content">
+                <p>"This game is so much fun! The graphics are amazing and it's really addictive. Highly recommend!"</p>
+            </div>
+            <div class="stars">
+                ⭐⭐⭐⭐⭐
+            </div>
+        </div>
+        <div class="review">
+            <div class="review-content">
+                <p>"Great game for all ages. Simple to play but challenging enough to keep you hooked."</p>
+            </div>
+            <div class="stars">
+                ⭐⭐⭐⭐☆
+            </div>
+        </div>
+        <div class="review">
+            <div class="review-content">
+                <p>"A fun way to pass the time. The sound effects are hilarious!"</p>
+            </div>
+            <div class="stars">
+                ⭐⭐⭐⭐⭐
+            </div>
+        </div>
+    </section>
+</main>

@@ -1,8 +1,8 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace PL.MVC.Controllers
 {
-    public class HomeController : Controller
+    public class GameController : Controller
     {
         public IActionResult Index()
         {

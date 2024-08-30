@@ -34,6 +34,18 @@ namespace Dal.SQL
                 var rolesArray = searchParams.Roles.Cast<int>().ToArray();
                 dbObjects = dbObjects.Where(item => rolesArray.Contains(item.RoleId));
             }
+            if (searchParams.Login != null)
+            {
+                dbObjects = dbObjects.Where(item => item.Login == searchParams.Login);
+            }
+            if (searchParams.Email != null)
+            {
+                dbObjects = dbObjects.Where(item => item.Email == searchParams.Email);
+            }
+            if (searchParams.PhoneNumber != null)
+            {
+                dbObjects = dbObjects.Where(item => item.PhoneNumber == searchParams.PhoneNumber);
+            }
 
             if (!string.IsNullOrEmpty(searchParams.SearchQuery))
             {

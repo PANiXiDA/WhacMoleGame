@@ -10,7 +10,7 @@ namespace PL.MVC.Infrastructure.Claims
 
         public CustomUserIdentity(UserModel user, string authenticationType = "Cookie") : base(GetUserClaims(user), authenticationType)
         {
-            Id = user?.Id;
+            Id = user.Id;
         }
         private static List<Claim> GetUserClaims(UserModel user)
         {
