@@ -12,6 +12,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Quartz" Version="3.13.0" />
+    <PackageReference Include="Quartz.AspNetCore" Version="3.13.0" />
+    <PackageReference Include="Quartz.Extensions.DependencyInjection" Version="3.13.0" />
     <PackageReference Include="Quartz.Extensions.Hosting" Version="3.13.0" />
   </ItemGroup>
 
@@ -21,6 +23,7 @@
     <ProjectReference Include="..\Dal\Dal.DbModels\Dal.DbModels.csproj" />
     <ProjectReference Include="..\Dal\Dal.SQL\Dal.SQL.csproj" />
     <ProjectReference Include="..\Entities\Entities.csproj" />
+    <ProjectReference Include="..\InGame\InGame.csproj" />
   </ItemGroup>
 
 </Project>

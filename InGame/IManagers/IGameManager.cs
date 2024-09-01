@@ -1,12 +1,19 @@
 ﻿using Entities;
+using InGame.Models;
 
 namespace InGame.IManagers
 {
-    public interface IGameManagerBL
+    public interface IGameManager
     {
-        void InitializeGame(Game game);
-        void UpdateGame();
         bool GameOver { get; }
         Game CurrentGame { get; }
+        List<User> Players { get; }
+        Mole CurrMole { get; }
+        Plant CurrPlant { get; }
+
+        void InitializeGame(Game game);
+        void UpdateGame();
+        void PlayerMove(int playerId, int tileId);
+        GameState GetGameState();
     }
 }

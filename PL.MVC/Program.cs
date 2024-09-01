@@ -2,7 +2,7 @@ using BL.Standard;
 using Dal.SQL;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Quartz;
-using Quartz.Impl;
+using InGame.Extensions;
 using InGame.Jobs;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,7 +20,6 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 builder.Services.AddQuartz(q =>
 {
-    q.UseMicrosoftDependencyInjectionJobFactory();
     var jobKey = new JobKey("GameUpdateJob");
 
     q.AddJob<GameUpdateJob>(opts => opts.WithIdentity(jobKey));
@@ -29,12 +28,13 @@ builder.Services.AddQuartz(q =>
         .WithIdentity("GameUpdateJob-trigger")
         .WithSimpleSchedule(x => x.WithIntervalInSeconds(2).RepeatForever()));
 });
-services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
+builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddDataAccessLayer(configuration);
 builder.Services.AddBusinessLogicLayer();
+builder.Services.AddManagers();
 
 var app = builder.Build();
 

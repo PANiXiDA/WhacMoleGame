@@ -10,7 +10,7 @@
         public int? MaxPointsCount { get; set; }
         public bool IsActive { get; set; }
 
-        public List<Session> Sessions { get; set; } = new List<Session>();
+        public List<Session>? Sessions { get; set; }
 
         public Game(
             int id,
@@ -19,7 +19,8 @@
             DateTime? gameEndTime,
             User? winner,
             int? maxPointsCount,
-            bool isActive)
+            bool isActive,
+            List<Session>? sessions = null)
         {
             Id = id;
             Name = name;
@@ -28,6 +29,7 @@
             Winner = winner;
             MaxPointsCount = maxPointsCount;
             IsActive = isActive;
+            Sessions = sessions;
         }
     }
 }

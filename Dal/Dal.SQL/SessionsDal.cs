@@ -24,6 +24,15 @@ namespace Dal.SQL
 
         protected override IQueryable<Session> BuildDbQuery(DefaultDbContext context, IQueryable<Session> dbObjects, SessionsSearchParams searchParams)
         {
+            if (searchParams.PlayerId.HasValue)
+            {
+                dbObjects = dbObjects.Where(item => item.PlayerId == searchParams.PlayerId.Value);
+            }
+            if (searchParams.GameId.HasValue)
+            {
+                dbObjects = dbObjects.Where(item => item.GameId == searchParams.GameId.Value);
+            }
+
             dbObjects = dbObjects.Where(item => item.IsActive);
 
             return dbObjects;

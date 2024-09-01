@@ -5,7 +5,8 @@ using Common.SearchParams;
 using PL.MVC.Infrastructure.Models;
 using Entities;
 using Common.ConvertParams;
-using BL.Interfaces.InGame;
+using InGame.IManagers;
+using InGame.Models.Requests;
 
 namespace PL.MVC.Controllers
 {
@@ -15,18 +16,18 @@ namespace PL.MVC.Controllers
         private readonly IUsersBL _usersBL;
         private readonly ISessionsBL _sessionsBL;
         private readonly IGamesBL _gamesBL;
-        private readonly IGameManagerBL _gameManagerBL;
+        private readonly IGameManager _gameManager;
 
         public GameController(
             IUsersBL usersBL,
             ISessionsBL sessionsBL,
             IGamesBL gamesBL,
-            IGameManagerBL gameManagerBL)
+            IGameManager gameManager)
         {
             _usersBL = usersBL;
             _sessionsBL = sessionsBL;
             _gamesBL = gamesBL;
-            _gameManagerBL = gameManagerBL;
+            _gameManager = gameManager;
         }
 
         public async Task<IActionResult> Index()
@@ -79,10 +80,38 @@ namespace PL.MVC.Controllers
 
                 await _sessionsBL.AddOrUpdateAsync(session);
 
-                _gameManagerBL.InitializeGame(game);
+                _gameManager.InitializeGame(game);
+            }
+            else
+            {
+                var game = player.Sessions.First().Game;
+                var sessions = SessionModel.FromEntitiesList((await _sessionsBL.GetAsync(new SessionsSearchParams()
+                {
+                    GameId = game.Id
+                })).Objects);
+                game.Sessions = sessions;
+
+                _gameManager.InitializeGame(GameModel.ToEntity(game));
             }
 
             return View();
+        }
+
+        [HttpGet]
+        public IActionResult GetGameState()
+        {
+            var gameState = _gameManager.GetGameState();
+            return Ok(gameState);
+        }
+
+        [HttpPost]
+        public IActionResult PlayerMove([FromBody] PlayerMoveRequest request)
+        {
+            _gameManager.PlayerMove(request.PlayerId, request.TileId);
+
+            // Return the updated game state
+            var gameState = _gameManager.GetGameState();
+            return Ok(gameState);
         }
     }
 }

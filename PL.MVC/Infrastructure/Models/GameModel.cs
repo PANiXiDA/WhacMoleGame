@@ -26,7 +26,7 @@ namespace PL.MVC.Infrastructure.Models
                 Winner = obj.Winner == null ? null : UserModel.FromEntity(obj.Winner),
                 MaxPointsCount = obj.MaxPointsCount,
                 IsActive = obj.IsActive,
-                Sessions = SessionModel.FromEntitiesList(obj.Sessions)
+                Sessions = obj.Sessions == null? new List<SessionModel>() : SessionModel.FromEntitiesList(obj.Sessions)
             };
         }
 
@@ -39,7 +39,8 @@ namespace PL.MVC.Infrastructure.Models
                 obj.GameEndTime,
                 obj.Winner == null ? null : UserModel.ToEntity(obj.Winner),
                 obj.MaxPointsCount,
-                obj.IsActive);
+                obj.IsActive,
+                SessionModel.ToEntitiesList(obj.Sessions));
         }
 
         public static List<GameModel> FromEntitiesList(IEnumerable<Game> list)

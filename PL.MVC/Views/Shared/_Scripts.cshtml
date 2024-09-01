@@ -2,7 +2,7 @@
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/lib/maskedinput/jquery.maskedinput.min.js"></script>
 <script src="~/js/pageUtils.js" asp-append-version="true"></script>
-<script src="~/js/script.js" asp-append-version="true"></script>
+<script defer src="~/js/script.js" asp-append-version="true"></script>
 <script>
     pageUtils.setAppRootPath("@Url.Content("~")");
     @if (ViewBag.UseFileManager == true)
@@ -13,3 +13,4 @@
     }
 </script>
 <script src="~/plugins/toastify/toastify.js"></script>
+<script defer src="~/lib/vue2/vue2.min.js" asp-append-version="true"></script>
