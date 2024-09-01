@@ -1,10 +1,10 @@
 ﻿using Common.SearchParams;
 using User = Entities.User;
-using System.Security.Cryptography;
-using System.Text;
 using BL.Interfaces;
 using Dal.Interfaces;
 using Common.SearchParams.Core;
+using Common.ConvertParams;
+using Common;
 
 namespace BL.Standard
 {
@@ -19,8 +19,14 @@ namespace BL.Standard
 
         public async Task<int> AddOrUpdateAsync(User entity)
         {
-            entity.Password = GetStringHash(entity.Password);
-            entity.RegistrationDate = DateTime.Now;
+            if (!string.IsNullOrEmpty(entity.Password))
+            {
+                entity.Password = Helpers.GetStringHash(entity.Password);
+            }
+            if (entity.Id == 0)
+            {
+                entity.RegistrationDate = DateTime.Now;
+            }
             entity.Id = await _usersDal.AddOrUpdateAsync(entity);
             return entity.Id;
         }
@@ -40,7 +46,7 @@ namespace BL.Standard
             return _usersDal.ExistsAsync(searchParams);
         }
 
-        public Task<User> GetAsync(int id, object? convertParams = null)
+        public Task<User> GetAsync(int id, UsersConvertParams? convertParams = null)
         {
             return _usersDal.GetAsync(id, convertParams);
         }
@@ -55,7 +61,7 @@ namespace BL.Standard
             return _usersDal.DeleteAsync(id);
         }
 
-        public Task<SearchResult<User>> GetAsync(UsersSearchParams searchParams, object? convertParams = null)
+        public Task<SearchResult<User>> GetAsync(UsersSearchParams searchParams, UsersConvertParams? convertParams = null)
         {
             return _usersDal.GetAsync(searchParams, convertParams);
         }
@@ -63,16 +69,7 @@ namespace BL.Standard
         public async Task<User?> VerifyPasswordAsync(string login, string password)
         {
             var user = await GetAsync(login);
-            return user != null && user.Password == GetStringHash(password) ? user : null;
-        }
-
-        private string GetStringHash(string s)
-        {
-            if (s == null)
-                return string.Empty;
-            using var hashAlgorithm = SHA512.Create();
-            var hash = hashAlgorithm.ComputeHash(Encoding.Unicode.GetBytes(s));
-            return string.Concat(hash.Select(item => item.ToString("x2")));
+            return user != null && user.Password == Helpers.GetStringHash(password) ? user : null;
         }
     }
 }

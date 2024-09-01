@@ -3,6 +3,7 @@ using System;
 using Dal.DbModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Dal.DbModels.Migrations
 {
     [DbContext(typeof(DefaultDbContext))]
-    partial class DefaultDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240901123445_AddGames")]
+    partial class AddGames
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -31,13 +34,10 @@ namespace Dal.DbModels.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime?>("GameEndTime")
-                        .HasColumnType("timestamp");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("GameStartTime")
-                        .HasColumnType("timestamp");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int?>("MaxPointsCount")
                         .HasColumnType("integer");
@@ -67,17 +67,14 @@ namespace Dal.DbModels.Migrations
                     b.Property<int>("GameId")
                         .HasColumnType("integer");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("PlayerId")
+                    b.Property<int>("UserId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
                     b.HasIndex("GameId");
 
-                    b.HasIndex("PlayerId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Sessions");
                 });
@@ -142,15 +139,15 @@ namespace Dal.DbModels.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_Session_Game");
 
-                    b.HasOne("Dal.DbModels.Models.User", "Player")
+                    b.HasOne("Dal.DbModels.Models.User", "User")
                         .WithMany("Sessions")
-                        .HasForeignKey("PlayerId")
+                        .HasForeignKey("UserId")
                         .IsRequired()
                         .HasConstraintName("FK_Session_User");
 
                     b.Navigation("Game");
 
-                    b.Navigation("Player");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Dal.DbModels.Models.Game", b =>

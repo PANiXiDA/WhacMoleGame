@@ -13,6 +13,8 @@ namespace Entities
         public bool IsBlocked { get; set; }
         public DateTime RegistrationDate { get; set; }
 
+        public List<Session> Sessions { get; set; } = new List<Session>();
+
         public User(
             int id,
             string login,

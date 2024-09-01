@@ -13,6 +13,7 @@ namespace PL.MVC.Infrastructure.Models
         public UserRole Role { get; set; }
         public bool IsBlocked { get; set; }
         public DateTime RegistrationDate { get; set; }
+        public List<SessionModel> Sessions { get; set; } = new List<SessionModel>();
 
         public static UserModel FromEntity(User obj)
         {
@@ -25,7 +26,8 @@ namespace PL.MVC.Infrastructure.Models
                 PhoneNumber = obj.PhoneNumber,
                 Role = obj.Role,
                 IsBlocked = obj.IsBlocked,
-                RegistrationDate = obj.RegistrationDate
+                RegistrationDate = obj.RegistrationDate,
+                Sessions = SessionModel.FromEntitiesList(obj.Sessions)
             };
         }
 

@@ -10,5 +10,12 @@
         public int RoleId { get; set; }
         public bool IsBlocked { get; set; }
         public DateTime RegistrationDate { get; set; }
+
+        public virtual ICollection<Session> Sessions { get; set; }
+
+        public User()
+        {
+            Sessions = new HashSet<Session>();
+        }
     }
 }

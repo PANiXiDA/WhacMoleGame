@@ -158,3 +158,40 @@
     background-position: right 10px center;
     background-size: 12px 8px;
 }
+
+.table-responsive {
+    margin-top: 20px;
+}
+
+.table {
+    width: 100%;
+    margin-bottom: 20px;
+    border-collapse: collapse;
+}
+
+    .table th, .table td {
+        padding: 12px;
+        border: 1px solid #ddd;
+        text-align: center;
+    }
+
+    .table th {
+        background-color: #f4f4f4;
+        font-weight: bold;
+    }
+
+.table-striped tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+#Password {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+    #Password:focus {
+        border-color: #4CAF50;
+    }

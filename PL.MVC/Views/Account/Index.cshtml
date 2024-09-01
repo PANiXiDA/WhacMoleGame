@@ -1,43 +1,76 @@
-﻿@{
+﻿@model AccountViewModel;
+
+@{
     ViewData["Title"] = "Account";
 }
 
 <main class="account">
-    <h1 class="account__title">Личный кабинет</h1>
+    <h1 class="account__title">Personal account</h1>
     <div class="account__wrapper">
         <div class="account__navigation">
-            <a asp-action="Index" asp-controller="Game" asp-area="Public" class="account__navigation-item" id="playButton">Играть</a>
-            <div class="account__navigation-item active" data-acnavTab="1">Профиль</div>
-            <div class="account__navigation-item" data-acnavTab="2">История игр</div>
-            <div class="account__navigation-item" data-acnavTab="3">Админ</div>
-            <a asp-action="Logout" asp-controller="Account" asp-area="Public" class="account__navigation-item" id="logoutLink">Выход</a>
+            <a asp-action="Index" asp-controller="Game" asp-area="Public" class="account__navigation-item" id="playButton">Play</a>
+            <div class="account__navigation-item active" data-acnavTab="1">Profile</div>
+            <div class="account__navigation-item" data-acnavTab="2">Games history</div>
+            @if (User.IsInRole("Developer"))
+            {
+                <div class="account__navigation-item" data-acnavTab="3">Admin</div>
+            }
+            <a asp-action="Logout" asp-controller="Account" asp-area="Public" class="account__navigation-item" id="logoutLink">Logout</a>
         </div>
         <div class="account__content">
             <div class="account__info account__info--display account__info--opacity" data-infnavTab="1">
                 <div class="subtitle">Профиль</div>
                 <div class="account__profile">
-                    <p>Количество сыгранных игр: <span id="gamesPlayed">0</span></p>
-                    <p>Статистика побед/поражений: <span id="winsLosses">0/0</span></p>
-                    <p>Максимально набранное количество очков: <span id="highestScore">0</span></p>
+                    <p>Number of games played: <span id="gamesPlayed">0</span></p>
+                    <p>Win/loss statistics: <span id="winsLosses">0/0</span></p>
+                    <p>The maximum number of points scored: <span id="highestScore">0</span></p>
                     <form id="profileForm">
-                        <label for="login">Логин:</label>
-                        <input type="text" id="login" name="login">
+                        <label for="login">Login:</label>
+                        <input type="text" id="Login" name="login" asp-for="User.Login" required>
+                        <label for="password">Password:</label>
+                        <input type="text" id="Password" name="password" placeholder="********" readonly>
                         <label for="email">Email:</label>
-                        <input type="email" id="email" name="email">
-                        <label for="phone">Номер телефона:</label>
-                        <input type="text" id="phone" name="phone">
+                        <input type="email" id="Email" name="email" asp-for="User.Email" required>
+                        <label for="phone">Phone number:</label>
+                        <input type="text" id="PhoneNumber" placeholder="+7 (___) ___-__-__" name="phone" asp-for="User.PhoneNumber" required>
                         <button type="submit">Сохранить</button>
                     </form>
                 </div>
             </div>
             <div class="account__info" data-infnavTab="2">
-                <div class="subtitle">История игр</div>
+                <div class="subtitle">Games history</div>
                 <select id="gameFilter" class="custom-select">
                     <option value="all">Все игры</option>
                     <!-- Add options for filtering -->
                 </select>
                 <div class="account__history">
-                    <!-- Display played games here -->
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th class="text-center">Id</th>
+                                <th class="text-center">Game start date</th>
+                                <th class="text-center">End date of the game</th>
+                                <th class="text-center">Winner</th>
+                                <th class="text-center">Max points count</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var game in Model.Games)
+                            {
+                                <tr>
+                                    <td class="text-center">@game.Id</td>
+                                    <td class="text-center">@game.GameStartTime</td>
+                                    <td class="text-center">@game.GameEndTime</td>
+                                    <td class="text-center">@game.Winner?.Login</td>
+                                    <td class="text-center">@game.MaxPointsCount</td>
+                                    <td class="text-center">
+                                        <a asp-action="Details" asp-route-id="@game.Id">Join</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -54,3 +87,7 @@
         </div>
     </div>
 </main>
+
+@section Scripts{
+    <script defer src="~/js/account.js" asp-append-version="true"></script>
+}

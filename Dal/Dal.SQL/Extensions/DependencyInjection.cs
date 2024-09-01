@@ -12,6 +12,8 @@ namespace Dal.SQL
         {
             services.AddDbContext<DefaultDbContext>(config => config.UseNpgsql(configuration["ConnectionStrings:DefaultConnectionString"]));
             services.AddScoped<IUsersDal, UsersDal>();
+            services.AddScoped<IGamesDal, GamesDal>();
+            services.AddScoped<ISessionsDal, SessionsDal>();
 
             return services;
         }

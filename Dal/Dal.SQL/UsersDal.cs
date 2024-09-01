@@ -5,10 +5,11 @@ using Common.SearchParams;
 using Dal.DbModels;
 using Dal.DbModels.Models;
 using Dal.Interfaces;
+using Common.ConvertParams;
 
 namespace Dal.SQL
 {
-    public class UsersDal : BaseDal<DefaultDbContext, User, Entities.User, int, UsersSearchParams, object>, IUsersDal
+    public class UsersDal : BaseDal<DefaultDbContext, User, Entities.User, int, UsersSearchParams, UsersConvertParams>, IUsersDal
     {
         protected override bool RequiresUpdatesAfterObjectSaving => false;
 
@@ -17,7 +18,10 @@ namespace Dal.SQL
         protected override Task UpdateBeforeSavingAsync(DefaultDbContext context, Entities.User entity, User dbObject, bool exists)
         {
             dbObject.Login = entity.Login;
-            dbObject.Password = entity.Password;
+            if (!string.IsNullOrEmpty(entity.Password))
+            {
+                dbObject.Password = entity.Password;
+            }
             dbObject.RoleId = (int)entity.Role;
             dbObject.Email = entity.Email;
             dbObject.PhoneNumber = entity.PhoneNumber;
@@ -57,9 +61,15 @@ namespace Dal.SQL
             return dbObjects;
         }
 
-        protected override async Task<IList<Entities.User>> BuildEntitiesListAsync(DefaultDbContext context, IQueryable<User> dbObjects, object? convertParams, bool isFull)
+        protected override async Task<IList<Entities.User>> BuildEntitiesListAsync(DefaultDbContext context, IQueryable<User> dbObjects, UsersConvertParams? convertParams, bool isFull)
         {
-            return (await dbObjects.ToListAsync()).Select(ConvertDbObjectToEntity).ToList();
+            if (convertParams != null && convertParams.IsIncludeSessions == true)
+            {
+                dbObjects = dbObjects.Include(item => item.Sessions.Where(session => session.IsActive))
+                    .ThenInclude(session => session.Game);
+            }
+
+            return (await dbObjects.ToListAsync()).Select(item => ConvertDbObjectToEntity(item)).ToList();
         }
 
         protected override Expression<Func<User, int>> GetIdByDbObjectExpression()
@@ -72,7 +82,7 @@ namespace Dal.SQL
             return item => item.Id;
         }
 
-        internal static Entities.User ConvertDbObjectToEntity(User dbObject)
+        internal static Entities.User ConvertDbObjectToEntity(User dbObject, bool isIncludeAdditional = true)
         {
             if (dbObject == null) throw new ArgumentNullException(nameof(dbObject));
 
@@ -85,7 +95,10 @@ namespace Dal.SQL
                 (UserRole)dbObject.RoleId,
                 dbObject.IsBlocked,
                 dbObject.RegistrationDate
-            );
+            )
+            {
+                Sessions = isIncludeAdditional ? dbObject.Sessions.Select(SessionsDal.ConvertDbObjectToEntity).ToList() : new List<Entities.Session>()
+            };
         }
 
         public Task<bool> ExistsAsync(string login)

@@ -3,6 +3,7 @@ using System;
 using Dal.DbModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Dal.DbModels.Migrations
 {
     [DbContext(typeof(DefaultDbContext))]
-    partial class DefaultDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240901135430_ChangeNameOfUserColumnInSessions")]
+    partial class ChangeNameOfUserColumnInSessions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -31,13 +34,10 @@ namespace Dal.DbModels.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime?>("GameEndTime")
-                        .HasColumnType("timestamp");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("GameStartTime")
-                        .HasColumnType("timestamp");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int?>("MaxPointsCount")
                         .HasColumnType("integer");
@@ -66,9 +66,6 @@ namespace Dal.DbModels.Migrations
 
                     b.Property<int>("GameId")
                         .HasColumnType("integer");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
 
                     b.Property<int>("PlayerId")
                         .HasColumnType("integer");
