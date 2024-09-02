@@ -195,3 +195,11 @@
     #Password:focus {
         border-color: #4CAF50;
     }
+
+a.btn-join-game {
+    text-decoration: none;
+}
+
+    a.btn-join-game:hover {
+        text-decoration: none;
+    }

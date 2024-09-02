@@ -4,6 +4,10 @@
     ViewData["Title"] = "Account";
 }
 
+@section Styles{
+    <link rel="stylesheet" href="~/css/account.css" asp-append-version="true">
+}
+
 <main class="account">
     <h1 class="account__title">Personal account</h1>
     <div class="account__wrapper">
@@ -65,7 +69,14 @@
                                     <td class="text-center">@game.Winner?.Login</td>
                                     <td class="text-center">@game.MaxPointsCount</td>
                                     <td class="text-center">
-                                        <a asp-action="Details" asp-route-id="@game.Id">Join</a>
+                                        @if (game.GameEndTime == null)
+                                        {
+                                            <a asp-controller="Game" asp-action="JoinGame" asp-route-gameId="@game.Id" class="btn-join-game">Join</a>
+                                        }
+                                        else
+                                        {
+                                            <p>Игра окончена</p>
+                                        }
                                     </td>
                                 </tr>
                             }

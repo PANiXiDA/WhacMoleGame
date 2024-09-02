@@ -1,26 +1,26 @@
-﻿@{
+﻿@using PL.MVC.Infrastructure.Models
+@model UserModel
+
+@{
     ViewData["Title"] = "Whac a Mole";
     Layout = null;
 }
-<script defer src="~/lib/vue2/vue2.min.js" asp-append-version="true"></script>
 <link rel="stylesheet" href="~/css/mole.css" asp-append-version="true" />
-<script src="~/js/mole.js"></script>
 
-
-<div id="game">
-    <div id="board">
-        <div v-for="tile in tiles" :key="tile.id" :id="tile.id" v-on:click="selectTile(tile.id)">
-            <img v-if="tile.mole" :src="tile.moleImage" :class="tile.moleClass" />
-            <img v-if="tile.plant" src="/img/piranha-plant.png" />
-        </div>
-    </div>
-
+<div id="game" data-login="@Model.Login">
     <div id="scores">
-        <div v-for="player in players" :key="player.id">
-            Player {{ player.id }} (Score: {{ player.score }})
+        <div v-for="player in players" :key="player.login">
+            {{ player.login }} (Score: {{ player.score }})
         </div>
     </div>
-
+    <div id="board">
+        <div v-for="tile in tiles" :key="tile.id" :id="tile.id" v-on:click="selectTile(playerLogin, tile.id)">
+            <img v-if="tile.mole" :src="tile.mole.image" />
+            <img v-if="tile.plant" :src="tile.plant.image" />
+        </div>
+    </div>
     <div v-if="gameOver">GAME OVER</div>
 </div>
 
+<script src="~/lib/vue2/vue2.min.js" asp-append-version="true"></script>
+<script src="~/js/mole.js"></script>

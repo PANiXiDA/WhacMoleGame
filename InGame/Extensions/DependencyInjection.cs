@@ -8,7 +8,7 @@ namespace InGame.Extensions
     {
         public static IServiceCollection AddManagers(this IServiceCollection services)
         {
-            services.AddScoped<IGameManager, GameManager>();
+            services.AddSingleton<IGameManager, GameManager>();
 
             return services;
         }

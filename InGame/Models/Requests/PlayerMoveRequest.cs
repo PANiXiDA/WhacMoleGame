@@ -2,7 +2,7 @@
 {
     public class PlayerMoveRequest
     {
-        public int PlayerId { get; set; }
+        public string PlayerLogin { get; set; } = string.Empty;
         public int TileId { get; set; }
     }
 }

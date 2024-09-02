@@ -1,65 +1,61 @@
-﻿document.addEventListener('DOMContentLoaded', function () {
-    new Vue({
-        el: '#game',
-        data() {
-            return {
-                tiles: [],
-                players: [],
-                gameOver: false,
-            };
+﻿new Vue({
+    el: '#game',
+    data: {
+        tiles: [],
+        players: [],
+        gameOver: false,
+        playerLogin: '',
+        mole: {
+            image: "/img/monty-mole.png",
+            tileId: 0,
+            playerId: 0
         },
-        created() {
-            this.setGame();
-            setInterval(this.updateGameState, 1000);
+        plant: {
+            image: "/img/piranha-plant.png",
+            tileId: 0
+        }
+    },
+    mounted() {
+        this.setGame();
+        setInterval(this.updateGameState, 1000);
+    },
+    methods: {
+        async setGame() {
+            this.playerLogin = document.getElementById('game').dataset.login;
+            for (let i = 0; i < 64; i++) {
+                this.tiles.push({ id: i, mole: null, plant: null });
+            }
         },
-        methods: {
-            async setGame() {
-                // Initialize the tiles array
-                for (let i = 0; i < 64; i++) {
-                    this.tiles.push({ id: i, mole: false, plant: false });
-                }
-            },
-            async updateGameState() {
-                try {
-                    // Fetch game state from the GameController
-                    const response = await fetch("/Game/GetGameState");
-                    const gameState = await response.json();
+        async updateGameState() {
+            const response = await fetch("/Game/GetGameState");
+            const gameState = await response.json();
 
-                    // Update the tiles based on gameState
-                    this.tiles.forEach((tile) => {
-                        tile.mole = tile.id === gameState.molePosition;
-                        tile.plant = tile.id === gameState.plantPosition;
-                    });
+            this.mole.tileId = gameState.molePosition;
+            this.plant.tileId = gameState.plantPosition;
 
-                    // Update players and their scores
-                    this.players = Object.keys(gameState.playerScores).map((playerId) => ({
-                        id: Number(playerId),
-                        score: gameState.playerScores[playerId],
-                    }));
+            this.tiles.forEach((tile) => {
+                tile.mole = tile.id === this.mole.tileId ? this.mole : null;
+                tile.plant = tile.id === this.plant.tileId ? this.plant : null;
+            });
 
-                    this.gameOver = gameState.gameOver;
-                } catch (error) {
-                    console.error('Ошибка при обновлении состояния игры:', error);
-                }
-            },
-            async selectTile(tileId) {
-                if (this.gameOver) return;
+            this.players = Object.keys(gameState.playerScores).map((playerLogin) => ({
+                login: playerLogin,
+                score: gameState.playerScores[playerLogin],
+            }));
 
-                const playerId = 1; // Use actual player ID from your game logic
-                try {
-                    await fetch("/Game/PlayerMove", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({ playerId, tileId }),
-                    });
-
-                    this.updateGameState(); // Optionally update the state immediately after the move
-                } catch (error) {
-                    console.error('Ошибка при выборе плитки:', error);
-                }
-            },
+            this.gameOver = gameState.gameOver;
         },
-    });
+        async selectTile(playerLogin, tileId) {
+            if (this.gameOver) return;
+
+            await fetch("/Game/PlayerMove", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ playerLogin, tileId }),
+            });
+        },
+    },
 });
+
