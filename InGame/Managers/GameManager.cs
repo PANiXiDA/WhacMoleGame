@@ -12,8 +12,8 @@ namespace InGame.Managers
         public List<User> Players { get; private set; } = new List<User>();
         public Mole? CurrMole { get; private set; }
         public Plant? CurrPlant { get; private set; }
+        public ConcurrentDictionary<string, int> PlayerScores { get; set; } = new ConcurrentDictionary<string, int>();
 
-        private readonly ConcurrentDictionary<string, int> PlayerScores = new ConcurrentDictionary<string, int>();
         private readonly object _lock = new object();
         private readonly Random _random = new Random();
 

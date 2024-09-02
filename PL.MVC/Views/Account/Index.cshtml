@@ -23,7 +23,7 @@
         </div>
         <div class="account__content">
             <div class="account__info account__info--display account__info--opacity" data-infnavTab="1">
-                <div class="subtitle">Профиль</div>
+                <div class="subtitle">Profile</div>
                 <div class="account__profile">
                     <p>Number of games played: <span id="gamesPlayed">0</span></p>
                     <p>Win/loss statistics: <span id="winsLosses">0/0</span></p>
@@ -37,7 +37,7 @@
                         <input type="email" id="Email" name="email" asp-for="User.Email" required>
                         <label for="phone">Phone number:</label>
                         <input type="text" id="PhoneNumber" placeholder="+7 (___) ___-__-__" name="phone" asp-for="User.PhoneNumber" required>
-                        <button type="submit">Сохранить</button>
+                        <button type="submit">Save</button>
                     </form>
                 </div>
             </div>
@@ -75,7 +75,7 @@
                                         }
                                         else
                                         {
-                                            <p>Игра окончена</p>
+                                            <p>Game over</p>
                                         }
                                     </td>
                                 </tr>
@@ -87,9 +87,9 @@
 
             <!-- Admin Section -->
             <div class="account__info" data-infnavTab="3">
-                <div class="subtitle">Админ</div>
+                <div class="subtitle">Admin</div>
                 <div class="account__admin">
-                    <h2>Пользователи</h2>
+                    <h2>Users</h2>
                     <ul id="userList">
                         <!-- Display list of users with options to add/remove -->
                     </ul>

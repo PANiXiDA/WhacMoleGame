@@ -12,6 +12,8 @@ namespace Dal.Interfaces.Core
     {
         Task<TObjectId> AddOrUpdateAsync(TEntity entity);
 
+        Task<IList<TObjectId>> AddOrUpdateAsync(IList<TEntity> entity);
+
         Task<bool> ExistsAsync(TObjectId id);
 
         Task<bool> ExistsAsync(TSearchParams searchParams);

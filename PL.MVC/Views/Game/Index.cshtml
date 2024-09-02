@@ -19,7 +19,7 @@
             <img v-if="tile.plant" :src="tile.plant.image" />
         </div>
     </div>
-    <div v-if="gameOver">GAME OVER</div>
+    <a asp-controller="Account" asp-action="Index" v-if="gameOver" class="game-over">GAME OVER</a>
 </div>
 
 <script src="~/lib/vue2/vue2.min.js" asp-append-version="true"></script>

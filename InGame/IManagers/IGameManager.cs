@@ -1,5 +1,6 @@
 ﻿using Entities;
 using InGame.Models;
+using System.Collections.Concurrent;
 
 namespace InGame.IManagers
 {
@@ -10,6 +11,7 @@ namespace InGame.IManagers
         List<User> Players { get; }
         Mole? CurrMole { get; }
         Plant? CurrPlant { get; }
+        public ConcurrentDictionary<string, int> PlayerScores { get; set; }
 
         void InitializeGame(Game game);
         void UpdateGame();

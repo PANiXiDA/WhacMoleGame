@@ -8,6 +8,8 @@ using Common.ConvertParams;
 using InGame.IManagers;
 using InGame.Models.Requests;
 using System.Numerics;
+using PL.MVC.Infrastructure.Requests;
+using System.Collections.Concurrent;
 
 namespace PL.MVC.Controllers
 {
@@ -80,6 +82,10 @@ namespace PL.MVC.Controllers
                     );
 
                 await _sessionsBL.AddOrUpdateAsync(session);
+                game.Sessions = new List<Session>()
+                {
+                    session
+                };
 
                 _gameManager.InitializeGame(game);
             }
@@ -167,9 +173,19 @@ namespace PL.MVC.Controllers
 
 
         [HttpGet]
-        public IActionResult GetGameState()
+        public async Task<IActionResult> GetGameState()
         {
             var gameState = _gameManager.GetGameState();
+            if (gameState.GameOver)
+            {
+                var gameOverRequest = new GameOverRequest()
+                {
+                    Game = GameModel.FromEntity(_gameManager.CurrentGame!),
+                    PlayerScores = gameState.PlayerScores
+                };
+
+                await GameOver(gameOverRequest);
+            }
 
             return Ok(gameState);
         }
@@ -181,6 +197,36 @@ namespace PL.MVC.Controllers
             var gameState = _gameManager.GetGameState();
 
             return Ok(gameState);
+        }
+
+        private async Task GameOver(GameOverRequest request)
+        {
+            string playerWithMaxScore = request.PlayerScores
+                .OrderByDescending(x => x.Value).FirstOrDefault().Key;
+            int maxScore = request.PlayerScores.Max(x => x.Value);
+
+            var winner = await _usersBL.GetAsync(playerWithMaxScore);
+
+            var game = GameModel.ToEntity(request.Game);
+            game.Winner = winner;
+            game.MaxPointsCount = maxScore;
+            game.GameEndTime = DateTime.Now;
+            game.IsActive = false;
+
+            await _gamesBL.AddOrUpdateAsync(game);
+
+            var sessions = (await _sessionsBL.GetAsync(new SessionsSearchParams() {
+                GameId = game.Id
+            })).Objects;
+
+            foreach (var session in sessions)
+            {
+                session.IsActive = false;
+            }
+
+            await _sessionsBL.AddOrUpdateAsync(sessions);
+
+            _gameManager.PlayerScores = new ConcurrentDictionary<string, int>();
         }
     }
 }
