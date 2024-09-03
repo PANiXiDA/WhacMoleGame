@@ -14,6 +14,7 @@ using PL.MVC.Infrastructure.ViewModels;
 using PL.MVC.Infrastructure.Requests;
 using Microsoft.AspNetCore.Authorization;
 using Common;
+using Common.ConvertParams;
 
 namespace PL.MVC.Controllers
 {
@@ -35,14 +36,28 @@ namespace PL.MVC.Controllers
                 return RedirectToAction("Login", "Account", new { area = "Public" });
             }
 
-            var user = UserModel.FromEntity((await _userBL.GetAsync(new UsersSearchParams()
-            {
-                Login = User.Identity.Name
-            })).Objects.FirstOrDefault()!);
+            var user = UserModel.FromEntity((await _userBL.GetAsync(
+                new UsersSearchParams()
+                {
+                    Login = User.Identity.Name
+                },
+                new UsersConvertParams()
+                {
+                    IsIncludeAllSessions = true
+                })).Objects.First());
+
+            int countGames = user.Sessions?.Count() ?? 0;
+            int countWins = user.Sessions?.Count(s => s.Game?.Winner?.Id == user.Id) ?? 0;
+            int maxPointsCount = user.Sessions?
+                .Where(s => s.Game?.Winner?.Id == user.Id && s.Game?.MaxPointsCount != null)
+                .Max(s => s.Game!.MaxPointsCount ?? 0) ?? 0;
 
             var model = new AccountViewModel()
             {
-                User = user
+                User = user,
+                CountGames = countGames,
+                CountWins = countWins,
+                MaxPointsCount = maxPointsCount
             };
 
             return View(model);
@@ -238,6 +253,7 @@ namespace PL.MVC.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<JsonResult> GetGames(GamesFilter filter, int page = 1, int pageSize = 10)
         {
             var userIdClaim = User.FindFirst("UserId");
@@ -277,6 +293,37 @@ namespace PL.MVC.Controllers
             };
 
             return Json(result);
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<JsonResult> GetUsers(int page = 1, int pageSize = 10)
+        {
+            var users = UserModel.FromEntitiesList((await _userBL.GetAsync(new UsersSearchParams())).Objects);
+
+            var totalItems = users.Count;
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+            var pagedUsers = users.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            var result = new
+            {
+                Users = pagedUsers,
+                TotalPages = totalPages
+            };
+
+            return Json(result);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = $"{nameof(UserRole.Developer)}")]
+        public async Task<JsonResult> BlockAndUnblockUser(int id, bool block)
+        {
+            var user = await _userBL.GetAsync(id);
+            user.IsBlocked = block;
+
+            var userId = await _userBL.AddOrUpdateAsync(user);
+
+            return Json(new { ok = true });
         }
     }
 }

@@ -4,16 +4,16 @@ namespace Common.Enums
 {
     public enum GamesFilter
     {
-        [Display(Name = "Все игры")]
+        [Display(Name = "All games")]
         All = 0,
 
-        [Display(Name = "Мои игры")]
+        [Display(Name = "My games")]
         My = 1,
 
-        [Display(Name = "Активные")]
+        [Display(Name = "Active")]
         Active = 2,
 
-        [Display(Name = "Завершённые")]
+        [Display(Name = "Finished")]
         Finished = 3,
     }
 }

@@ -68,6 +68,11 @@ namespace Dal.SQL
                 dbObjects = dbObjects.Include(item => item.Sessions.Where(session => session.IsActive))
                     .ThenInclude(session => session.Game);
             }
+            if (convertParams != null && convertParams.IsIncludeAllSessions == true)
+            {
+                dbObjects = dbObjects.Include(item => item.Sessions).ThenInclude(session => session.Game)
+                    .ThenInclude(game => game!.Winner);
+            }
 
             return (await dbObjects.ToListAsync()).Select(item => ConvertDbObjectToEntity(item)).ToList();
         }
