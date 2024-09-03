@@ -22,17 +22,18 @@ namespace PL.MVC.Infrastructure.Claims
             var result = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.Login),
-                new Claim(ClaimTypes.Role, user.Role.ToString())
+                new Claim(ClaimTypes.Role, user.Role.ToString()),
+                new Claim("UserId", user.Id.ToString())
             };
             return result;
         }
 
         public CustomUserIdentity(int userId, string userLogin, UserRole userRole, string authenticationType = "Cookie")
-            : base(GetUserClaims(userLogin, userRole), authenticationType)
+            : base(GetUserClaims(userId, userLogin, userRole), authenticationType)
         {
             Id = userId;
         }
-        private static List<Claim> GetUserClaims(string userLogin, UserRole userRole)
+        private static List<Claim> GetUserClaims(int userId, string userLogin, UserRole userRole)
         {
             if (userLogin == null)
             {
@@ -41,7 +42,8 @@ namespace PL.MVC.Infrastructure.Claims
             var result = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, userLogin),
-                new Claim(ClaimTypes.Role, userRole.ToString())
+                new Claim(ClaimTypes.Role, userRole.ToString()),
+                new Claim("UserId", userId.ToString())
             };
             return result;
         }

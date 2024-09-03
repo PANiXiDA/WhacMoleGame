@@ -32,6 +32,10 @@ namespace Dal.Interfaces
             {
                 dbObjects = dbObjects.Where(item => item.IsActive == searchParams.IsActive.Value);
             }
+            if (searchParams.WinnerId.HasValue)
+            {
+                dbObjects = dbObjects.Where(item => item.WinnerId == searchParams.WinnerId.Value);
+            }
 
             return dbObjects;
         }

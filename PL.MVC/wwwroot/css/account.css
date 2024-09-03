@@ -203,3 +203,25 @@ a.btn-join-game {
     a.btn-join-game:hover {
         text-decoration: none;
     }
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+    .pagination button {
+        margin: 0 5px;
+        padding: 5px 10px;
+        cursor: pointer;
+    }
+
+        .pagination button.active {
+            font-weight: bold;
+            background-color: #007bff;
+            color: white;
+        }
+
+    .pagination span {
+        margin: 0 5px;
+    }

@@ -40,15 +40,9 @@ namespace PL.MVC.Controllers
                 Login = User.Identity.Name
             })).Objects.FirstOrDefault()!);
 
-            var games = GameModel.FromEntitiesList((await _gamesBL.GetAsync(new GamesSearchParams()
-            {
-
-            })).Objects);
-
             var model = new AccountViewModel()
             {
-                User = user,
-                Games = games
+                User = user
             };
 
             return View(model);
@@ -241,6 +235,48 @@ namespace PL.MVC.Controllers
             await _userBL.AddOrUpdateAsync(user);
 
             return Json(response);
+        }
+
+        [HttpGet]
+        public async Task<JsonResult> GetGames(GamesFilter filter, int page = 1, int pageSize = 10)
+        {
+            var userIdClaim = User.FindFirst("UserId");
+            int? userId = null;
+            if (userIdClaim != null)
+            {
+                userId = int.Parse(userIdClaim.Value);
+            }
+
+            List<GameModel> games = new List<GameModel>();
+            switch (filter)
+            {
+                case GamesFilter.All:
+                    games = GameModel.FromEntitiesList((await _gamesBL.GetAsync(new GamesSearchParams() { })).Objects);
+                    break;
+                case GamesFilter.My:
+                    games = GameModel.FromEntitiesList((await _gamesBL.GetAsync(new GamesSearchParams() { WinnerId = userId })).Objects);
+                    break;
+                case GamesFilter.Active:
+                    games = GameModel.FromEntitiesList((await _gamesBL.GetAsync(new GamesSearchParams() { IsActive = true })).Objects);
+                    break;
+                case GamesFilter.Finished:
+                    games = GameModel.FromEntitiesList((await _gamesBL.GetAsync(new GamesSearchParams() { IsActive = false })).Objects);
+                    break;
+                default:
+                    break;
+            }
+
+            var totalItems = games.Count;
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+            var pagedGames = games.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            var result = new
+            {
+                Games = pagedGames,
+                TotalPages = totalPages
+            };
+
+            return Json(result);
         }
     }
 }
