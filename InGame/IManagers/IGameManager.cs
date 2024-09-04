@@ -7,10 +7,10 @@ namespace InGame.IManagers
     public interface IGameManager
     {
         bool GameOver { get; }
-        Game? CurrentGame { get; }
-        List<User> Players { get; }
-        Mole? CurrMole { get; }
-        Plant? CurrPlant { get; }
+        Game? CurrentGame { get; set; }
+        List<User> Players { get; set; }
+        List<Mole> Moles { get; set; }
+        List<Plant> Plants { get; set; }
         public ConcurrentDictionary<string, int> PlayerScores { get; set; }
 
         void InitializeGame(Game game);

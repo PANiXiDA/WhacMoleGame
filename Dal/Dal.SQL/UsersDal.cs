@@ -6,6 +6,7 @@ using Dal.DbModels;
 using Dal.DbModels.Models;
 using Dal.Interfaces;
 using Common.ConvertParams;
+using Common;
 
 namespace Dal.SQL
 {
@@ -18,9 +19,9 @@ namespace Dal.SQL
         protected override Task UpdateBeforeSavingAsync(DefaultDbContext context, Entities.User entity, User dbObject, bool exists)
         {
             dbObject.Login = entity.Login;
-            if (!string.IsNullOrEmpty(entity.Password))
+            if (!string.IsNullOrEmpty(entity.Password) && entity.Password != dbObject.Password)
             {
-                dbObject.Password = entity.Password;
+                dbObject.Password = Helpers.GetStringHash(entity.Password);
             }
             dbObject.RoleId = (int)entity.Role;
             dbObject.Email = entity.Email;

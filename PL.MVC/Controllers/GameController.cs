@@ -7,9 +7,11 @@ using Entities;
 using Common.ConvertParams;
 using InGame.IManagers;
 using InGame.Models.Requests;
-using System.Numerics;
 using PL.MVC.Infrastructure.Requests;
 using System.Collections.Concurrent;
+using Common.Enums;
+using PL.MVC.Infrastructure.ViewModels;
+using System.Reflection;
 
 namespace PL.MVC.Controllers
 {
@@ -45,6 +47,8 @@ namespace PL.MVC.Controllers
                     IsIncludeSessions = true
                 })).Objects.FirstOrDefault()!);
 
+            GameModel? game = null;
+
             if (player.Sessions.Count == 0)
             {
                 var games = (await _gamesBL.GetAsync(
@@ -57,41 +61,45 @@ namespace PL.MVC.Controllers
                         IsIncludeSessions = true
                     })).Objects;
 
-                var game = games.FirstOrDefault(game => game.Sessions?.Count < 3);
-                if (games.Count == 0 || game == null)
+                if (games.Count == 0)
                 {
-                    game = new Game(
-                        0,
-                        "Ladder game",
-                        DateTime.Now,
-                        null,
-                        null,
-                        null,
-                        true
-                        );
+                    game = new GameModel
+                    {
+                        Id = 0,
+                        Name = "Ladder game",
+                        GameStartTime = DateTime.Now,
+                        GameEndTime = null,
+                        Winner = null,
+                        MaxPointsCount = null,
+                        IsActive = true
+                    };
 
-                    var gameId = await _gamesBL.AddOrUpdateAsync(game);
+                    var gameId = await _gamesBL.AddOrUpdateAsync(GameModel.ToEntity(game));
                     game.Id = gameId;
+                }
+                else
+                {
+                    game = GameModel.FromEntity(games.First(game => game.Sessions?.Count < 3));
                 }
 
                 var session = new Session(
                     0,
                     UserModel.ToEntity(player),
-                    game!,
+                    GameModel.ToEntity(game),
                     true
                     );
 
                 await _sessionsBL.AddOrUpdateAsync(session);
-                game.Sessions = new List<Session>()
+                game.Sessions = new List<SessionModel>()
                 {
-                    session
+                    SessionModel.FromEntity(session)
                 };
 
-                _gameManager.InitializeGame(game);
+                _gameManager.InitializeGame(GameModel.ToEntity(game));
             }
             else
             {
-                var game = player.Sessions.First().Game;
+                game = player.Sessions.First().Game;
                 var sessions = SessionModel.FromEntitiesList((await _sessionsBL.GetAsync(new SessionsSearchParams()
                 {
                     GameId = game.Id
@@ -100,11 +108,16 @@ namespace PL.MVC.Controllers
 
                 _gameManager.InitializeGame(GameModel.ToEntity(game));
             }
+            var model = new GameViewModel()
+            {
+                Player = player,
+                GameId = game.Id
+            };
 
-            return View(player);
+            return View(model);
         }
 
-        public async Task<IActionResult> CreateGame()
+        public async Task<IActionResult> CreateGame(string gameName)
         {
             var player = UserModel.FromEntity((await _usersBL.GetAsync(
                 new UsersSearchParams()
@@ -114,7 +127,7 @@ namespace PL.MVC.Controllers
 
             var game = new Game(
                 0,
-                "Ladder game",
+                gameName,
                 DateTime.Now,
                 null,
                 null,
@@ -132,11 +145,18 @@ namespace PL.MVC.Controllers
                 true
                 );
 
-            await _sessionsBL.AddOrUpdateAsync(session);
+            session.Id = await _sessionsBL.AddOrUpdateAsync(session);
+            game.Sessions = new List<Session> { session };
 
             _gameManager.InitializeGame(game);
 
-            return View("Index", player);
+            var model = new GameViewModel()
+            {
+                Player = player,
+                GameId = gameId
+            };
+
+            return View("Index", model);
         }
 
         public async Task<IActionResult> JoinGame(int gameId)
@@ -168,24 +188,20 @@ namespace PL.MVC.Controllers
 
             _gameManager.InitializeGame(game);
 
-            return View("Index", player);
+            var model = new GameViewModel()
+            {
+                Player = player,
+                GameId = gameId
+            };
+
+            return View("Index", model);
         }
 
 
         [HttpGet]
-        public async Task<IActionResult> GetGameState()
+        public IActionResult GetGameState()
         {
             var gameState = _gameManager.GetGameState();
-            if (gameState.GameOver)
-            {
-                var gameOverRequest = new GameOverRequest()
-                {
-                    Game = GameModel.FromEntity(_gameManager.CurrentGame!),
-                    PlayerScores = gameState.PlayerScores
-                };
-
-                await GameOver(gameOverRequest);
-            }
 
             return Ok(gameState);
         }
@@ -199,15 +215,16 @@ namespace PL.MVC.Controllers
             return Ok(gameState);
         }
 
-        private async Task GameOver(GameOverRequest request)
+        [HttpPost]
+        public async Task GameOver([FromQuery] int gameId)
         {
-            string playerWithMaxScore = request.PlayerScores
+            string playerWithMaxScore = _gameManager.PlayerScores
                 .OrderByDescending(x => x.Value).FirstOrDefault().Key;
-            int maxScore = request.PlayerScores.Max(x => x.Value);
+            int maxScore = _gameManager.PlayerScores.Max(x => x.Value);
 
             var winner = await _usersBL.GetAsync(playerWithMaxScore);
 
-            var game = GameModel.ToEntity(request.Game);
+            var game = await _gamesBL.GetAsync(gameId);
             game.Winner = winner;
             game.MaxPointsCount = maxScore;
             game.GameEndTime = DateTime.Now;
@@ -215,7 +232,8 @@ namespace PL.MVC.Controllers
 
             await _gamesBL.AddOrUpdateAsync(game);
 
-            var sessions = (await _sessionsBL.GetAsync(new SessionsSearchParams() {
+            var sessions = (await _sessionsBL.GetAsync(new SessionsSearchParams()
+            {
                 GameId = game.Id
             })).Objects;
 
@@ -227,6 +245,50 @@ namespace PL.MVC.Controllers
             await _sessionsBL.AddOrUpdateAsync(sessions);
 
             _gameManager.PlayerScores = new ConcurrentDictionary<string, int>();
+            _gameManager.Moles = new List<InGame.Models.Mole>();
+            _gameManager.Plants = new List<InGame.Models.Plant>();
+        }
+
+        [HttpGet]
+        public async Task<JsonResult> GetGames(GamesFilter filter, int page = 1, int pageSize = 6)
+        {
+            var userIdClaim = User.FindFirst("UserId");
+            int? userId = null;
+            if (userIdClaim != null)
+            {
+                userId = int.Parse(userIdClaim.Value);
+            }
+
+            List<GameModel> games = new List<GameModel>();
+            switch (filter)
+            {
+                case GamesFilter.All:
+                    games = GameModel.FromEntitiesList((await _gamesBL.GetAsync(new GamesSearchParams() { })).Objects);
+                    break;
+                case GamesFilter.My:
+                    games = GameModel.FromEntitiesList((await _gamesBL.GetAsync(new GamesSearchParams() { WinnerId = userId })).Objects);
+                    break;
+                case GamesFilter.Active:
+                    games = GameModel.FromEntitiesList((await _gamesBL.GetAsync(new GamesSearchParams() { IsActive = true })).Objects);
+                    break;
+                case GamesFilter.Finished:
+                    games = GameModel.FromEntitiesList((await _gamesBL.GetAsync(new GamesSearchParams() { IsActive = false })).Objects);
+                    break;
+                default:
+                    break;
+            }
+
+            var totalItems = games.Count;
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+            var pagedGames = games.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            var result = new
+            {
+                Games = pagedGames,
+                TotalPages = totalPages
+            };
+
+            return Json(result);
         }
     }
 }

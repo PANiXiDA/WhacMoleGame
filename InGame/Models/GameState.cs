@@ -2,8 +2,8 @@
 {
     public class GameState
     {
-        public int MolePosition { get; set; }
-        public int PlantPosition { get; set; }
+        public List<int> MolePositions { get; set; } = new List<int>();
+        public List<int> PlantPositions { get; set; } = new List<int>();
         public Dictionary<string, int> PlayerScores { get; set; } = new Dictionary<string, int>();
         public bool GameOver { get; set; }
     }

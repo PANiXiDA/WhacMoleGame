@@ -42,6 +42,7 @@
                 </div>
             </div>
             <div class="account__info" data-infnavTab="2" id="gameHistory">
+                <button id="createGameButton" class="btn-create-game" v-on:click="showModal = true">Create game</button>
                 <div class="subtitle">Games history</div>
                 <select id="gameFilter" asp-items="Html.GetEnumSelectList<GamesFilter>()" v-model="gamesFilter" v-on:change="updateGames" class="custom-select"></select>
                 <div class="account__history">
@@ -49,6 +50,7 @@
                         <thead>
                             <tr>
                                 <th class="text-center">Id</th>
+                                <th class="text-center">Game name</th>
                                 <th class="text-center">Game start date</th>
                                 <th class="text-center">End date of the game</th>
                                 <th class="text-center">Winner</th>
@@ -59,13 +61,14 @@
                         <tbody>
                             <tr v-for="game in games" :key="game.id">
                                 <td class="text-center">{{ game.id }}</td>
+                                <td class="text-center">{{ game.name }}</td>
                                 <td class="text-center">{{ game.gameStartTime }}</td>
                                 <td class="text-center">{{ game.gameEndTime || '' }}</td>
                                 <td class="text-center">{{ game.winner ? game.winner.login : '' }}</td>
                                 <td class="text-center">{{ game.maxPointsCount || '' }}</td>
                                 <td class="text-center">
                                     <a v-if="!game.gameEndTime"
-                                       :href="'/Game/JoinGame/' + game.id"
+                                       :href="'/Game/JoinGame?gameId=' + game.id"
                                        class="btn-join-game">Join</a>
                                     <p v-if="game.gameEndTime">Game over</p>
                                 </td>
@@ -79,6 +82,17 @@
                             <span v-else>...</span>
                         </span>
                         <button v-if="currentPage < totalPages" v-on:click="goToPage(currentPage + 1)">Next</button>
+                    </div>
+                </div>
+                <div v-if="showModal" class="modal-overlay">
+                    <div class="modal-content">
+                        <h2>Create a New Game</h2>
+                        <label for="gameName">Game name:</label>
+                        <input type="text" id="gameName" v-model="newGameName" class="modal-input" />
+                        <div class="modal-buttons">
+                            <button class="modal-btn-create" v-on:click="createGame">Create</button>
+                            <button class="modal-btn-cancel" v-on:click="showModal = false">Cancel</button>
+                        </div>
                     </div>
                 </div>
             </div>

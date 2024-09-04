@@ -7,7 +7,7 @@ namespace InGame.Models
         public int PlayerId { get; set; }
         public int TileId { get; set; }
 
-        public Mole(int id, int playerId, int tileId) : base(id, "Mole")
+        public Mole(Guid id, int playerId, int tileId) : base(id, "Mole")
         {
             PlayerId = playerId;
             TileId = tileId;

@@ -19,10 +19,6 @@ namespace BL.Standard
 
         public async Task<int> AddOrUpdateAsync(User entity)
         {
-            if (!string.IsNullOrEmpty(entity.Password))
-            {
-                entity.Password = Helpers.GetStringHash(entity.Password);
-            }
             if (entity.Id == 0)
             {
                 entity.RegistrationDate = DateTime.Now;

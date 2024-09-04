@@ -1,12 +1,9 @@
 ﻿using BL.Interfaces;
-using BL.Standard;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
-using PL.MVC.Infrastructure.Claims;
-using PL.MVC.Infrastructure.Responses;
-using PL.MVC.Infrastructure.ViewModel;
-using System.Security.Claims;
+using Common.SearchParams;
+using Microsoft.AspNetCore.Authorization;
+using PL.MVC.Infrastructure.Models;
+using Common.Enums;
 
 namespace PL.MVC.Controllers
 {
@@ -19,47 +16,35 @@ namespace PL.MVC.Controllers
             _userBL = userBL;
         }
 
-        public IActionResult Index()
+        [HttpGet]
+        [Authorize]
+        public async Task<JsonResult> GetUsers(int page = 1, int pageSize = 10)
         {
-            return RedirectToAction("Authorization", "Account");
-        }
+            var users = UserModel.FromEntitiesList((await _userBL.GetAsync(new UsersSearchParams())).Objects);
 
-        public IActionResult Authorization()
-        {
-            return View();
+            var totalItems = users.Count;
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+            var pagedUsers = users.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            var result = new
+            {
+                Users = pagedUsers,
+                TotalPages = totalPages
+            };
+
+            return Json(result);
         }
 
         [HttpPost]
-        public async Task<JsonResult> Authorization([FromBody] LoginViewModel model)
+        [Authorize(Roles = $"{nameof(UserRole.Developer)}")]
+        public async Task<JsonResult> BlockAndUnblockUser(int id, bool block)
         {
-            var response = new BaseResponse();
-            var user = await _userBL.VerifyPasswordAsync(model.Login, model.Password);
+            var user = await _userBL.GetAsync(id);
+            user.IsBlocked = block;
 
-            if (user == null)
-            {
-                response.IsSuccess = false;
-                response.TextError = "Указаны неверные данные для входа";
-                return Json(response);
-            }
+            var userId = await _userBL.AddOrUpdateAsync(user);
 
-            if (user.IsBlocked)
-            {
-                response.IsSuccess = false;
-                response.TextError = "Пользователь заблокирован";
-                return Json(response);
-            }
-
-            var identity = new CustomUserIdentity(user.Id, user.Login, user.Role);
-
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(identity),
-                new AuthenticationProperties() { IsPersistent = model.Remember }
-            );
-
-            return Json(response);
+            return Json(new { ok = true });
         }
-
-
     }
 }

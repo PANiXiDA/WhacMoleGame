@@ -2,10 +2,10 @@
 {
     public class GameEntity
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string Type { get; set; }
 
-        public GameEntity(int id, string type)
+        public GameEntity(Guid id, string type)
         {
             Id = id;
             Type = type;

@@ -1,5 +1,5 @@
 ﻿@using PL.MVC.Infrastructure.Models
-@model UserModel
+@model GameViewModel
 
 @{
     ViewData["Title"] = "Whac a Mole";
@@ -7,7 +7,7 @@
 }
 <link rel="stylesheet" href="~/css/mole.css" asp-append-version="true" />
 
-<div id="game" data-login="@Model.Login">
+<div id="game" data-login="@Model.Player.Login" data-game-id="@Model.GameId">
     <div id="scores">
         <div v-for="player in players" :key="player.login">
             {{ player.login }} (Score: {{ player.score }})
@@ -15,8 +15,8 @@
     </div>
     <div id="board">
         <div v-for="tile in tiles" :key="tile.id" :id="tile.id" v-on:click="selectTile(playerLogin, tile.id)">
-            <img v-if="tile.mole" :src="tile.mole.image" />
-            <img v-if="tile.plant" :src="tile.plant.image" />
+            <img v-for="mole in tile.moles" :key="mole.tileId" :src="mole.image" alt="Mole" />
+            <img v-for="plant in tile.plants" :key="plant.tileId" :src="plant.image" alt="Plant" />
         </div>
     </div>
     <a asp-controller="Account" asp-action="Index" v-if="gameOver" class="game-over">GAME OVER</a>

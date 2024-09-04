@@ -5,19 +5,14 @@
         players: [],
         gameOver: false,
         playerLogin: '',
-        mole: {
-            image: "/img/monty-mole.png",
-            tileId: 0,
-            playerId: 0
-        },
-        plant: {
-            image: "/img/piranha-plant.png",
-            tileId: 0
-        }
+        moles: [],
+        plants: [],
+        gameId: parseInt(document.getElementById('game').getAttribute('data-game-id'), 10),
+        intervalId: null
     },
     mounted() {
         this.setGame();
-        setInterval(this.updateGameState, 1000);
+        this.intervalId = setInterval(this.updateGameState, 500);
     },
     methods: {
         async setGame() {
@@ -30,12 +25,19 @@
             const response = await fetch("/Game/GetGameState");
             const gameState = await response.json();
 
-            this.mole.tileId = gameState.molePosition;
-            this.plant.tileId = gameState.plantPosition;
+            this.moles = gameState.molePositions.map(tileId => ({
+                image: "/img/monty-mole.png",
+                tileId
+            }));
+
+            this.plants = gameState.plantPositions.map(tileId => ({
+                image: "/img/piranha-plant.png",
+                tileId
+            }));
 
             this.tiles.forEach((tile) => {
-                tile.mole = tile.id === this.mole.tileId ? this.mole : null;
-                tile.plant = tile.id === this.plant.tileId ? this.plant : null;
+                tile.moles = this.moles.filter(mole => mole.tileId === tile.id);
+                tile.plants = this.plants.filter(plant => plant.tileId === tile.id);
             });
 
             this.players = Object.keys(gameState.playerScores).map((playerLogin) => ({
@@ -44,6 +46,10 @@
             }));
 
             this.gameOver = gameState.gameOver;
+
+            if (this.gameOver) {
+                this.gameEnd();
+            }
         },
         async selectTile(playerLogin, tileId) {
             if (this.gameOver) return;
@@ -56,6 +62,12 @@
                 body: JSON.stringify({ playerLogin, tileId }),
             });
         },
+        async gameEnd() {
+            await fetch(`/Game/GameOver?gameId=${this.gameId}`, {
+                method: "POST",
+            });
+            clearInterval(this.intervalId);
+        }
     },
 });
 

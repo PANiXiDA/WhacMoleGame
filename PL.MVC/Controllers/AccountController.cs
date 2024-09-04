@@ -21,12 +21,10 @@ namespace PL.MVC.Controllers
     public class AccountController : Controller
     {
         private readonly IUsersBL _userBL;
-        private readonly IGamesBL _gamesBL;
 
-        public AccountController(IUsersBL userBL, IGamesBL gamesBL)
+        public AccountController(IUsersBL userBL)
         {
             _userBL = userBL;
-            _gamesBL = gamesBL;
         }
 
         public async Task<IActionResult> Index()
@@ -48,9 +46,11 @@ namespace PL.MVC.Controllers
 
             int countGames = user.Sessions?.Count() ?? 0;
             int countWins = user.Sessions?.Count(s => s.Game?.Winner?.Id == user.Id) ?? 0;
-            int maxPointsCount = user.Sessions?
+            int? maxPointsCount = user.Sessions?
                 .Where(s => s.Game?.Winner?.Id == user.Id && s.Game?.MaxPointsCount != null)
-                .Max(s => s.Game!.MaxPointsCount ?? 0) ?? 0;
+                .Select(s => s.Game!.MaxPointsCount ?? 0)
+                .DefaultIfEmpty(0)
+                .Max();
 
             var model = new AccountViewModel()
             {
@@ -250,80 +250,6 @@ namespace PL.MVC.Controllers
             await _userBL.AddOrUpdateAsync(user);
 
             return Json(response);
-        }
-
-        [HttpGet]
-        [Authorize]
-        public async Task<JsonResult> GetGames(GamesFilter filter, int page = 1, int pageSize = 10)
-        {
-            var userIdClaim = User.FindFirst("UserId");
-            int? userId = null;
-            if (userIdClaim != null)
-            {
-                userId = int.Parse(userIdClaim.Value);
-            }
-
-            List<GameModel> games = new List<GameModel>();
-            switch (filter)
-            {
-                case GamesFilter.All:
-                    games = GameModel.FromEntitiesList((await _gamesBL.GetAsync(new GamesSearchParams() { })).Objects);
-                    break;
-                case GamesFilter.My:
-                    games = GameModel.FromEntitiesList((await _gamesBL.GetAsync(new GamesSearchParams() { WinnerId = userId })).Objects);
-                    break;
-                case GamesFilter.Active:
-                    games = GameModel.FromEntitiesList((await _gamesBL.GetAsync(new GamesSearchParams() { IsActive = true })).Objects);
-                    break;
-                case GamesFilter.Finished:
-                    games = GameModel.FromEntitiesList((await _gamesBL.GetAsync(new GamesSearchParams() { IsActive = false })).Objects);
-                    break;
-                default:
-                    break;
-            }
-
-            var totalItems = games.Count;
-            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
-            var pagedGames = games.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-
-            var result = new
-            {
-                Games = pagedGames,
-                TotalPages = totalPages
-            };
-
-            return Json(result);
-        }
-
-        [HttpGet]
-        [Authorize]
-        public async Task<JsonResult> GetUsers(int page = 1, int pageSize = 10)
-        {
-            var users = UserModel.FromEntitiesList((await _userBL.GetAsync(new UsersSearchParams())).Objects);
-
-            var totalItems = users.Count;
-            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
-            var pagedUsers = users.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-
-            var result = new
-            {
-                Users = pagedUsers,
-                TotalPages = totalPages
-            };
-
-            return Json(result);
-        }
-
-        [HttpPost]
-        [Authorize(Roles = $"{nameof(UserRole.Developer)}")]
-        public async Task<JsonResult> BlockAndUnblockUser(int id, bool block)
-        {
-            var user = await _userBL.GetAsync(id);
-            user.IsBlocked = block;
-
-            var userId = await _userBL.AddOrUpdateAsync(user);
-
-            return Json(new { ok = true });
         }
     }
 }

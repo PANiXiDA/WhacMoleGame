@@ -4,7 +4,9 @@
         games: [],
         gamesFilter: 0,
         currentPage: 1,
-        totalPages: 0
+        totalPages: 0,
+        showModal: false,
+        newGameName: ''
     },
     mounted() {
         this.updateGames();
@@ -12,7 +14,7 @@
     methods: {
         async updateGames() {
             this.games = [];
-            const response = await fetch(`/Account/GetGames?filter=${this.gamesFilter}&page=${this.currentPage}`, {
+            const response = await fetch(`/Game/GetGames?filter=${this.gamesFilter}&page=${this.currentPage}`, {
                 method: "GET",
             });
 
@@ -24,6 +26,32 @@
                 game.gameEndTime = this.formatDate(game.gameEndTime);
                 this.games.push(game);
             });
+        },
+        async createGame() {
+            const trimmedGameName = this.newGameName.trim();
+
+            if (trimmedGameName === '') {
+                Toastify({
+                    text: 'Please enter a game name',
+                    duration: 3000,
+                    backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)"
+                }).showToast();
+                return;
+            }
+
+            if (trimmedGameName.length > 20) {
+                Toastify({
+                    text: 'Game name cannot be longer than 20 characters',
+                    duration: 3000,
+                    backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)"
+                }).showToast();
+                return;
+            }
+
+            this.showModal = false;
+            this.newGameName = '';
+
+            window.location.href = `/Game/CreateGame?gameName=${encodeURIComponent(trimmedGameName)}`
         },
         formatDate(dateString) {
             if (!dateString) return '';
@@ -79,7 +107,7 @@ new Vue({
     methods: {
         async updateUsers() {
             this.users = [];
-            const response = await fetch(`/Account/GetUsers?page=${this.currentPage}`, {
+            const response = await fetch(`/User/GetUsers?page=${this.currentPage}`, {
                 method: "GET",
             });
 
@@ -130,7 +158,7 @@ new Vue({
             return range;
         },
         async Block(id) {
-            const response = await fetch(`/Account/BlockAndUnblockUser?id=${id}&block=true`, {
+            const response = await fetch(`/User/BlockAndUnblockUser?id=${id}&block=true`, {
                 method: "POST",
             });
 
@@ -144,7 +172,7 @@ new Vue({
             this.updateUsers();
         },
         async Unblock(id) {
-            const response = await fetch(`/Account/BlockAndUnblockUser?id=${id}&block=false`, {
+            const response = await fetch(`/User/BlockAndUnblockUser?id=${id}&block=false`, {
                 method: "POST",
             });
 

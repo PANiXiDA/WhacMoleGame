@@ -6,7 +6,7 @@ namespace InGame.Models
     {
         public int TileId { get; set; }
 
-        public Plant(int id, int tileId) : base(id, "Plant")
+        public Plant(Guid id, int tileId) : base(id, "Plant")
         {
             TileId = tileId;
         }
