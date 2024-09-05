@@ -14,8 +14,7 @@ namespace InGame.Jobs
 
         public Task Execute(IJobExecutionContext context)
         {
-            if (context != null && _gameManager.CurrentGame != null && _gameManager.Moles != null
-                && _gameManager.Moles.Any() &&_gameManager.Plants != null && _gameManager.Plants.Any())
+            if (context != null && _gameManager.GameSessions != null && _gameManager.GameSessions.Any())
             {
                 _gameManager.UpdateGame();
             }

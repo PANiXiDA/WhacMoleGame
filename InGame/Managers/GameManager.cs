@@ -1,79 +1,102 @@
 ﻿using Entities;
 using InGame.IManagers;
 using InGame.Models;
-using System.Collections.Concurrent;
 
 namespace InGame.Managers
 {
     public class GameManager : IGameManager
     {
-        public Game? CurrentGame { get; set; }
-        public bool GameOver { get; private set; }
-        public List<User> Players { get; set; } = new List<User>();
-        public List<Mole> Moles { get; set; } = new List<Mole>();
-        public List<Plant> Plants { get; set; } = new List<Plant>();
-        public ConcurrentDictionary<string, int> PlayerScores { get; set; } = new ConcurrentDictionary<string, int>();
+        public List<GameSession> GameSessions { get; private set; } = new List<GameSession>();
 
         private readonly object _lock = new object();
         private readonly Random _random = new Random();
 
         public void InitializeGame(Game game)
         {
-            CurrentGame = game;
-            Players = game.Sessions!.Select(s => s.Player).ToList();
+            var gameSession = GameSessions.FirstOrDefault(session => session.Game.Id == game.Id);
 
-            foreach (var player in Players)
+            if (gameSession == null)
             {
-                PlayerScores.TryAdd(player.Login, 0);
-                Moles.Add(new Mole(Guid.NewGuid(), Players.First().Id, GetRandomTileId()));
-                Plants.Add(new Plant(Guid.NewGuid(), GetRandomTileId()));
-            }
+                gameSession = new GameSession(game);
 
-            GameOver = false;
+                var players = game.Sessions!.Select(s => s.Player).ToList();
+                gameSession.Players = players;
+
+                for (int i = 0; i < 5; i++)
+                {
+                    gameSession.Moles.Add(new Mole(Guid.NewGuid(), GetRandomTileId(gameSession)));
+                    gameSession.Plants.Add(new Plant(Guid.NewGuid(), GetRandomTileId(gameSession)));
+                }
+
+                foreach (var player in players)
+                {
+                    gameSession.PlayerScores.TryAdd(player.Login, 0);
+                }
+
+                GameSessions.Add(gameSession);
+            }
+            else
+            {
+                var newPlayers = game.Sessions!
+                    .Select(s => s.Player)
+                    .Where(p => !gameSession.Players.Any(existingPlayer => existingPlayer.Id == p.Id))
+                    .ToList();
+
+                gameSession.Players.AddRange(newPlayers);
+
+                foreach (var player in newPlayers)
+                {
+                    gameSession.PlayerScores.TryAdd(player.Login, 0);
+                }
+            }
         }
 
         public void UpdateGame()
         {
-            if (GameOver) return;
-
             lock (_lock)
             {
-                foreach (var mole in Moles)
+                foreach (var gameSession in GameSessions)
                 {
-                    mole.TileId = GetRandomTileId();
-                }
-
-                foreach (var plant in Plants)
-                {
-                    plant.TileId = GetRandomTileId();
+                    foreach (var mole in gameSession.Moles)
+                    {
+                        mole.TileId = GetRandomTileId(gameSession);
+                    }
+                    foreach (var plant in gameSession.Plants)
+                    {
+                        plant.TileId = GetRandomTileId(gameSession);
+                    }
                 }
             }
         }
 
-        public void PlayerMove(string playerLogin, int tileId)
+        public void PlayerMove(string playerLogin, int tileId, int gameId)
         {
             lock (_lock)
             {
-                var hitMole = Moles.FirstOrDefault(m => m.TileId == tileId);
+                var gameSession = GameSessions.FirstOrDefault(session => session.Game.Id == gameId);
+                if (gameSession == null)
+                {
+                    return;
+                }
+                var hitMole = gameSession.Moles.FirstOrDefault(m => m.TileId == tileId);
                 if (hitMole != null)
                 {
-                    PlayerScores.AddOrUpdate(playerLogin, 10, (id, oldScore) => oldScore + 10);
+                    gameSession.PlayerScores.AddOrUpdate(playerLogin, 10, (id, oldScore) => oldScore + 10);
                 }
 
-                var hitPlant = Plants.FirstOrDefault(p => p.TileId == tileId);
+                var hitPlant = gameSession.Plants.FirstOrDefault(p => p.TileId == tileId);
                 if (hitPlant != null)
                 {
-                    GameOver = true;
+                    gameSession.GameOver = true;
                 }
-
-                UpdateGame();
             }
         }
 
-        private int GetRandomTileId()
+        private int GetRandomTileId(GameSession gameSession)
         {
             int id;
-            HashSet<int> usedTileIds = new HashSet<int>(Moles.Select(m => m.TileId).Concat(Plants.Select(p => p.TileId)));
+            HashSet<int> usedTileIds = new HashSet<int>(gameSession.Moles.Select(m => m.TileId)
+                .Concat(gameSession.Plants.Select(p => p.TileId)));
 
             do
             {
@@ -83,15 +106,37 @@ namespace InGame.Managers
             return id;
         }
 
-        public GameState GetGameState()
+        public GameState GetGameState(int gameId)
         {
-            return new GameState
+            var gameSession = GameSessions.FirstOrDefault(session => session.Game.Id == gameId);
+
+            if (gameSession != null)
             {
-                MolePositions = Moles.Select(m => m.TileId).ToList(),
-                PlantPositions = Plants.Select(p => p.TileId).ToList(),
-                PlayerScores = PlayerScores.ToDictionary(kvp => kvp.Key, kvp => kvp.Value),
-                GameOver = GameOver
-            };
+                return new GameState
+                {
+                    MolePositions = gameSession.Moles.Select(m => m.TileId).ToList(),
+                    PlantPositions = gameSession.Plants.Select(p => p.TileId).ToList(),
+                    PlayerScores = gameSession.PlayerScores.ToDictionary(kvp => kvp.Key, kvp => kvp.Value),
+                    GameOver = gameSession.GameOver
+                };
+            }
+            else
+            {
+                return new GameState
+                {
+                    GameOver = true
+                };
+            }
+        }
+
+        public void RemoveGameSession(int gameId)
+        {
+            var gameSession = GameSessions.First(session => session.Game.Id == gameId);
+
+            if (gameSession != null)
+            {
+                GameSessions.Remove(gameSession);
+            }
         }
     }
 }

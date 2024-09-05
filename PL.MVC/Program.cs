@@ -26,7 +26,7 @@ builder.Services.AddQuartz(q =>
     q.AddTrigger(opts => opts
         .ForJob(jobKey)
         .WithIdentity("GameUpdateJob-trigger")
-        .WithSimpleSchedule(x => x.WithIntervalInSeconds(2).RepeatForever()));
+        .WithSimpleSchedule(x => x.WithIntervalInSeconds(1).RepeatForever()));
 });
 builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 

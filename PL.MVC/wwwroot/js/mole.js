@@ -22,7 +22,7 @@
             }
         },
         async updateGameState() {
-            const response = await fetch("/Game/GetGameState");
+            const response = await fetch(`/Game/GetGameState?gameId=${this.gameId}`);
             const gameState = await response.json();
 
             this.moles = gameState.molePositions.map(tileId => ({
@@ -59,7 +59,7 @@
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ playerLogin, tileId }),
+                body: JSON.stringify({ playerLogin, tileId, gameId: this.gameId }),
             });
         },
         async gameEnd() {

@@ -7,11 +7,8 @@ using Entities;
 using Common.ConvertParams;
 using InGame.IManagers;
 using InGame.Models.Requests;
-using PL.MVC.Infrastructure.Requests;
-using System.Collections.Concurrent;
 using Common.Enums;
 using PL.MVC.Infrastructure.ViewModels;
-using System.Reflection;
 
 namespace PL.MVC.Controllers
 {
@@ -199,9 +196,9 @@ namespace PL.MVC.Controllers
 
 
         [HttpGet]
-        public IActionResult GetGameState()
+        public IActionResult GetGameState([FromQuery] int gameId)
         {
-            var gameState = _gameManager.GetGameState();
+            var gameState = _gameManager.GetGameState(gameId);
 
             return Ok(gameState);
         }
@@ -209,8 +206,8 @@ namespace PL.MVC.Controllers
         [HttpPost]
         public IActionResult PlayerMove([FromBody] PlayerMoveRequest request)
         {
-            _gameManager.PlayerMove(request.PlayerLogin, request.TileId);
-            var gameState = _gameManager.GetGameState();
+            _gameManager.PlayerMove(request.PlayerLogin, request.TileId, request.GameId);
+            var gameState = _gameManager.GetGameState(request.GameId);
 
             return Ok(gameState);
         }
@@ -218,9 +215,11 @@ namespace PL.MVC.Controllers
         [HttpPost]
         public async Task GameOver([FromQuery] int gameId)
         {
-            string playerWithMaxScore = _gameManager.PlayerScores
+            var gameSession = _gameManager.GameSessions.First(item => item.Game.Id == gameId);
+
+            string playerWithMaxScore = gameSession.PlayerScores
                 .OrderByDescending(x => x.Value).FirstOrDefault().Key;
-            int maxScore = _gameManager.PlayerScores.Max(x => x.Value);
+            int maxScore = gameSession.PlayerScores.Max(x => x.Value);
 
             var winner = await _usersBL.GetAsync(playerWithMaxScore);
 
@@ -244,9 +243,7 @@ namespace PL.MVC.Controllers
 
             await _sessionsBL.AddOrUpdateAsync(sessions);
 
-            _gameManager.PlayerScores = new ConcurrentDictionary<string, int>();
-            _gameManager.Moles = new List<InGame.Models.Mole>();
-            _gameManager.Plants = new List<InGame.Models.Plant>();
+            _gameManager.RemoveGameSession(gameId);
         }
 
         [HttpGet]
