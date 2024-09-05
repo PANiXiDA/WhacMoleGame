@@ -3,45 +3,100 @@
 }
 
 <main class="container">
-    <div class="game-info">
-        <h1>Whack-a-Mole</h1>
-        <p>Welcome to Whack-a-Mole!
-            This exciting game will test your reflexes as you try to whack as many moles as possible before time runs out.
-            The game features engaging graphics and sound effects that will keep you entertained for hours.
-            Can you get the highest score?</p>
-        <div class="video-wrapper">
-            <iframe width="560" height="315" src="https://www.youtube.com/embed/FwZdvZKTWCI?si=Kd_8tlukNHbmyHgV" title="YouTube video player"
-            frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    <section class="game-info">
+        <div>
+            <h1>Whack-a-Mole</h1>
+            <p>
+                Welcome to Whack-a-Mole! This exciting game will test your reflexes as you try to whack as many moles as possible before time runs out.
+                Can you get the highest score?
+            </p>
+            <div class="video-wrapper">
+                <div class="video-thumbnail" style="position: relative;">
+                    <img src="https://img.youtube.com/vi/FwZdvZKTWCI/0.jpg" alt="Video Thumbnail" style="width: 100%; cursor: pointer;" id="videoThumbnail">
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 50px; color: white;">▶</div>
+                </div>
+                <iframe id="youtubeVideo" width="560" height="315" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="display: none;"></iframe>
+            </div>
+            <a asp-controller="Account" asp-action="Index" class="btn-play">Play</a>
         </div>
-        <a asp-controller="Account" asp-action="Index" class="btn-play">Play</a>
-    </div>
+        <div class="reviews-section">
+            <h2>Leave Your Review</h2>
+            <form action="/Account/SubmitReview" method="post">
+                <div class="textbox">
+                    <input type="text" name="reviewerName" placeholder="Your Name" required>
+                </div>
+                <div class="textbox">
+                    <textarea name="reviewContent" placeholder="Your Review" rows="5" required></textarea>
+                </div>
+                <div class="stars-rating">
+                    <label for="rating">Your Rating:</label>
+                    <input type="hidden" id="ratingValue" name="rating" value="5">
+                    <span class="stars-form">
+                        <i class="star-form" data-value="1">⭐</i>
+                        <i class="star-form" data-value="2">⭐</i>
+                        <i class="star-form" data-value="3">⭐</i>
+                        <i class="star-form" data-value="4">⭐</i>
+                        <i class="star-form" data-value="5">⭐</i>
+                    </span>
+                </div>
+                <button type="submit" class="btn-register-blue">Submit Review</button>
+            </form>
+        </div>
 
-    <section class="reviews">
-        <h2>What Players Say</h2>
-        <div class="review">
-            <div class="review-content">
-                <p>"This game is so much fun! The graphics are amazing and it's really addictive. Highly recommend!"</p>
-            </div>
-            <div class="stars">
-                ⭐⭐⭐⭐⭐
+        <div class="swiper-container">
+            <h2>What Players Say</h2>
+            <div class="swiper-wrapper">
+                <div class="swiper-slide">
+                    <div class="review-content">
+                        <p>"This game is so much fun! The graphics are amazing and it's really addictive. Highly recommend!"</p>
+                        <div class="stars">⭐⭐⭐⭐⭐</div>
+                    </div>
+                </div>
+                <div class="swiper-slide">
+                    <div class="review-content">
+                        <p>"Great game for all ages. Simple to play but challenging enough to keep you hooked."</p>
+                        <div class="stars">⭐⭐⭐⭐☆</div>
+                    </div>
+                </div>
+                <div class="swiper-slide">
+                    <div class="review-content">
+                        <p>"Great game for all ages. Simple to play but challenging enough to keep you hooked."</p>
+                        <div class="stars">⭐⭐⭐⭐☆</div>
+                    </div>
+                </div>
+                <div class="swiper-slide">
+                    <div class="review-content">
+                        <p>"Great game for all ages. Simple to play but challenging enough to keep you hooked."</p>
+                        <div class="stars">⭐⭐⭐⭐☆</div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="review">
-            <div class="review-content">
-                <p>"Great game for all ages. Simple to play but challenging enough to keep you hooked."</p>
-            </div>
-            <div class="stars">
-                ⭐⭐⭐⭐☆
-            </div>
-        </div>
-        <div class="review">
-            <div class="review-content">
-                <p>"A fun way to pass the time. The sound effects are hilarious!"</p>
-            </div>
-            <div class="stars">
-                ⭐⭐⭐⭐⭐
-            </div>
-        </div>
+
     </section>
 </main>
+
+@section Scripts {
+    <script>
+        document.getElementById('videoThumbnail').addEventListener('click', function () {
+            document.getElementById('videoThumbnail').style.display = 'none';
+            var video = document.getElementById('youtubeVideo');
+            video.src = "https://www.youtube.com/embed/FwZdvZKTWCI?autoplay=1";
+            video.style.display = 'block';
+        });
+
+        var swiper = new Swiper('.swiper-container', {
+            slidesPerView: 1,
+            spaceBetween: 10,
+            centeredSlides: true
+        });
+
+        document.querySelectorAll('.star-form').forEach(star => {
+            star.addEventListener('click', function () {
+                const rating = this.getAttribute('data-value');
+                document.getElementById('ratingValue').value = rating;
+                document.querySelectorAll('.star-form').forEach(s => s.classList.toggle('selected', s.getAttribute('data-value') <= rating));
+            });
+        });
+    </script>
+}

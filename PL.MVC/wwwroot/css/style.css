@@ -301,7 +301,7 @@ body {
     }
 
 .video-wrapper {
-    margin-bottom: 20px;
+    margin-bottom: 40px;
 }
 
     .video-wrapper iframe {
@@ -355,4 +355,90 @@ body {
 .stars {
     font-size: 20px;
     color: #ffcc00;
+}
+
+.game-info {
+    background: white;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 800px;
+    margin-bottom: 40px;
+}
+
+form {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 40px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.textbox {
+    margin-bottom: 20px;
+}
+
+    .textbox input, .textbox textarea {
+        width: 100%;
+        padding: 15px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
+    }
+
+.swiper-container {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 40px;
+}
+
+.swiper-slide {
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background: #f9f9f9;
+}
+
+.review-content {
+    font-size: 16px;
+    color: #333;
+}
+
+.textbox textarea {
+    height: 150px;
+    resize: vertical;
+}
+
+.swiper-container {
+    overflow: hidden;
+}
+
+.swiper-slide {
+    width: 100%;
+}
+
+.swiper-button-next, .swiper-button-prev {
+    color: #2575fc;
+}
+
+.reviews-section {
+    margin-top: 40px;
+}
+
+.stars-form .star-form {
+    cursor: pointer;
+    font-size: 20px;
+    color: #333;
+}
+
+    .stars-form .star-form.selected {
+        color: #ffcc00;
+    }
+
+.stars-rating {
+    margin-bottom: 20px;
 }
