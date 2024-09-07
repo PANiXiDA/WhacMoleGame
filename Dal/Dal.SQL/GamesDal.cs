@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using Common.SearchParams;
 using Dal.DbModels;
 using Dal.DbModels.Models;
-using Dal.SQL;
 using Common.ConvertParams;
+using Dal.Interfaces;
 
-namespace Dal.Interfaces
+namespace Dal.SQL
 {
     public class GamesDal : BaseDal<DefaultDbContext, Game, Entities.Game, int, GamesSearchParams, GamesConvertParams>, IGamesDal
     {

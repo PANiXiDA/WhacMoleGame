@@ -14,6 +14,7 @@ namespace Dal.SQL
             services.AddScoped<IUsersDal, UsersDal>();
             services.AddScoped<IGamesDal, GamesDal>();
             services.AddScoped<ISessionsDal, SessionsDal>();
+            services.AddScoped<IFeedbacksDal, FeedbacksDal>();
 
             return services;
         }

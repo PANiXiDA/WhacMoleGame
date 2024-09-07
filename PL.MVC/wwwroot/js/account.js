@@ -34,7 +34,9 @@
                 Toastify({
                     text: 'Please enter a game name',
                     duration: 3000,
-                    backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)"
+                    style: {
+                        background: "linear-gradient(to right, #ff5f6d, #ffc371)"
+                    }
                 }).showToast();
                 return;
             }
@@ -43,7 +45,9 @@
                 Toastify({
                     text: 'Game name cannot be longer than 20 characters',
                     duration: 3000,
-                    backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)"
+                    style: {
+                        background: "linear-gradient(to right, #ff5f6d, #ffc371)"
+                    }
                 }).showToast();
                 return;
             }

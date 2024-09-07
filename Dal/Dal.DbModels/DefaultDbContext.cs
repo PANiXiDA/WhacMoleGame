@@ -12,6 +12,7 @@ namespace Dal.DbModels
         public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<Game> Games { get; set; }
         public virtual DbSet<Session> Sessions { get; set; }
+        public virtual DbSet<Feedback> Feedbacks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
