@@ -6,5 +6,6 @@ namespace BL.Interfaces
 {
     public interface IGamesBL : ICrudBL<Game, GamesSearchParams, GamesConvertParams>
     {
+        Task<List<int>> AddOrUpdateAsync(IList<Game> entity);
     }
 }

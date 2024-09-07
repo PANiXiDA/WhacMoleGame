@@ -1,0 +1,6 @@
+@GameSessionCleaner_HostAddress = http://localhost:5250
+
+GET {{GameSessionCleaner_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

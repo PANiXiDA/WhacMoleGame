@@ -22,6 +22,12 @@ namespace BL.Standard
             return entity.Id;
         }
 
+        public async Task<List<int>> AddOrUpdateAsync(IList<Game> entities)
+        {
+            var ids = await _gamesDal.AddOrUpdateAsync(entities);
+            return ids.ToList();
+        }
+
         public Task<bool> ExistsAsync(int id)
         {
             return _gamesDal.ExistsAsync(id);

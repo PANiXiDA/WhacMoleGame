@@ -36,6 +36,10 @@ namespace Dal.SQL
             {
                 dbObjects = dbObjects.Where(item => item.WinnerId == searchParams.WinnerId.Value);
             }
+            if (searchParams.GameStartTime.HasValue)
+            {
+                dbObjects = dbObjects.Where(item => item.GameStartTime < searchParams.GameStartTime);
+            }
 
             return dbObjects;
         }
