@@ -20,9 +20,14 @@
                 <button type="submit" class="btn-login">Login</button>
                 <a asp-controller="Account" asp-action="Registration" class="btn-register">Register</a>
             </div>
+            <div class="forgot-password-wrapper">
+                <a href="#" class="forgot-password-btn" id="forgotPasswordBtn">Forgot your password?</a>
+            </div>
         </form>
     </div>
 </div>
+
+<partial name="Modals/_ForgotPassword" />
 
 @section Scripts {
     <script defer src="~/js/login.js" asp-append-version="true"></script>

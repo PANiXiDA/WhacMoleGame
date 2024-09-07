@@ -11,6 +11,7 @@ namespace BL.Standard
             services.AddScoped<IGamesBL, GamesBL>();
             services.AddScoped<ISessionsBL, SessionsBL>();
             services.AddScoped<IFeedbacksBL, FeedbacksBL>();
+            services.AddScoped<IEmailNotificationsBL, EmailNotificationsBL>();
 
             return services;
         }

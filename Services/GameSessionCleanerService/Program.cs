@@ -5,7 +5,7 @@ using Common.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.Configure<GameSessionCleanerConfigurations>(builder.Configuration.GetSection("GameSessionCleanerSettings"));
+builder.Services.Configure<GameSessionCleanerConfigurations>(builder.Configuration.GetSection("GameSessionCleanerConfigurations"));
 
 builder.Services.AddDataAccessLayer(builder.Configuration);
 builder.Services.AddBusinessLogicLayer();

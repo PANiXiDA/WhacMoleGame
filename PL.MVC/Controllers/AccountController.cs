@@ -15,16 +15,22 @@ using PL.MVC.Infrastructure.Requests;
 using Microsoft.AspNetCore.Authorization;
 using Common;
 using Common.ConvertParams;
+using Tools.SymmetricEncryption.AesEncryption;
+using Microsoft.Extensions.Options;
 
 namespace PL.MVC.Controllers
 {
     public class AccountController : Controller
     {
         private readonly IUsersBL _userBL;
+        private readonly IEmailNotificationsBL _emailNotificationsBL;
+        private readonly AesEncryption _encryption;
 
-        public AccountController(IUsersBL userBL)
+        public AccountController(IUsersBL userBL, IEmailNotificationsBL emailNotificationsBL, AesEncryption encryption)
         {
             _userBL = userBL;
+            _emailNotificationsBL = emailNotificationsBL;
+            _encryption = encryption;
         }
 
         public async Task<IActionResult> Index()
@@ -262,6 +268,46 @@ namespace PL.MVC.Controllers
             await _userBL.AddOrUpdateAsync(user);
 
             return Json(response);
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> RecoveryPassword([FromBody] RecoveryPasswordRequest recoveryPasswordRequest)
+        {
+            var response = new BaseResponse();
+
+            var userEmail = (await _userBL.GetAsync(new UsersSearchParams() { Email = recoveryPasswordRequest.Email })).Objects.FirstOrDefault();
+
+            if (userEmail == null)
+            {
+                response.IsSuccess = false;
+                response.TextError = "There is no user with such an email";
+            }
+
+            else
+            {
+                await _emailNotificationsBL.SendRecoveryPasswordEmailAsync(recoveryPasswordRequest.Email, userEmail);
+                response.IsSuccess = true;
+            }
+
+            return Json(response);
+        }
+
+        public async Task<IActionResult> VerifyUser([FromQuery] string tokenKey)
+        {
+            var user = _encryption.Decrypt<User>(tokenKey);
+            if (user != null)
+            {
+                var identity = new CustomUserIdentity(user.Id, user.Login, user.Role);
+
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    new ClaimsPrincipal(identity)
+                );
+
+                return RedirectToAction("Index", "Account");
+            }
+
+            return RedirectToAction("Registration", "Account");
         }
     }
 }

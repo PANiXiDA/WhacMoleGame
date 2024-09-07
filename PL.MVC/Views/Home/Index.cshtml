@@ -65,13 +65,4 @@
 
 @section Scripts {
     <script defer src="~/js/feedback.js" asp-append-version="true"></script>
-
-    <script>
-        document.getElementById('videoThumbnail').addEventListener('click', function () {
-            document.getElementById('videoThumbnail').style.display = 'none';
-            var video = document.getElementById('youtubeVideo');
-            video.src = "https://www.youtube.com/embed/FwZdvZKTWCI?autoplay=1";
-            video.style.display = 'block';
-        });
-    </script>
 }

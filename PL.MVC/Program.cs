@@ -4,10 +4,15 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Quartz;
 using InGame.Extensions;
 using InGame.Jobs;
+using Common.Configurations;
+using Tools.SymmetricEncryption.AesEncryption;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var configuration = builder.Configuration;
+builder.Services.Configure<AesEncryptionConfiguration>(builder.Configuration.GetSection("AesEncryptionSettings"));
+builder.Services.Configure<SmtpConfiguration>(builder.Configuration.GetSection("SmtpSettings"));
+
+builder.Services.AddScoped<AesEncryption>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -32,7 +37,7 @@ builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddDataAccessLayer(configuration);
+builder.Services.AddDataAccessLayer(builder.Configuration);
 builder.Services.AddBusinessLogicLayer();
 builder.Services.AddManagers();
 

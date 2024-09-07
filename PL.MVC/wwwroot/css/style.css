@@ -442,3 +442,79 @@ form {
 .stars-rating {
     margin-bottom: 20px;
 }
+
+.forgot-password-wrapper {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.forgot-password-btn {
+    color: #2575fc;
+    text-decoration: none;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+    .forgot-password-btn:hover {
+        text-decoration: underline;
+    }
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 10px;
+    width: 400px;
+    text-align: center;
+}
+
+    .modal-content h2 {
+        margin-bottom: 20px;
+    }
+
+    .modal-content input {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+
+    .modal-content .btn-submit {
+        background-color: #2575fc;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+        .modal-content .btn-submit:hover {
+            background-color: #6a11cb;
+        }
+
+.close {
+    position: absolute;
+    top: 0px;
+    right: 10px;
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+    .close:hover,
+    .close:focus {
+        color: black;
+    }

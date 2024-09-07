@@ -29,6 +29,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{91
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameSessionCleanerService", "Services\GameSessionCleanerService\GameSessionCleanerService.csproj", "{BF210831-461F-4231-B6CA-7CF87E4E5A60}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tools", "Tools\Tools.csproj", "{6AE296AB-E09C-4B5B-A5E7-73A069629899}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +77,10 @@ Global
 		{BF210831-461F-4231-B6CA-7CF87E4E5A60}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BF210831-461F-4231-B6CA-7CF87E4E5A60}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BF210831-461F-4231-B6CA-7CF87E4E5A60}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6AE296AB-E09C-4B5B-A5E7-73A069629899}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6AE296AB-E09C-4B5B-A5E7-73A069629899}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6AE296AB-E09C-4B5B-A5E7-73A069629899}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6AE296AB-E09C-4B5B-A5E7-73A069629899}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
