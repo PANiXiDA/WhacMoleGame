@@ -242,6 +242,18 @@ namespace PL.MVC.Controllers
                 return Json(response);
             }
 
+            if (request.Login != user.Login)
+            {
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+                var identity = new CustomUserIdentity(user.Id, request.Login, user.Role);
+
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    new ClaimsPrincipal(identity)
+                );
+            }
+
             user.Login = request.Login;
             user.Password = request.Password;
             user.Email = request.Email;

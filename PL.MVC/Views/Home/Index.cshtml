@@ -12,10 +12,11 @@
             </p>
             <div class="video-wrapper">
                 <div class="video-thumbnail" style="position: relative;">
-                    <img src="https://img.youtube.com/vi/FwZdvZKTWCI/0.jpg" alt="Video Thumbnail" style="width: 100%; cursor: pointer;" id="videoThumbnail">
-                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 50px; color: white;">▶</div>
+                    <video class="hero__img" controls poster="/img/mario-bg.jpg" style="width: 100%;">
+                        <source src="/videos/AboutGame.mp4" type="video/mp4" />
+                        Your browser does not support the video tag.
+                    </video>
                 </div>
-                <iframe id="youtubeVideo" width="560" height="315" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="display: none;"></iframe>
             </div>
             <a asp-controller="Account" asp-action="Index" class="btn-play">Play</a>
         </div>
