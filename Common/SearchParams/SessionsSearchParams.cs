@@ -6,6 +6,7 @@ namespace Common.SearchParams
     {
         public int? PlayerId {  get; set; }
         public int? GameId { get; set; }
+
         public SessionsSearchParams() { }
         public SessionsSearchParams(
             int startIndex = 0,

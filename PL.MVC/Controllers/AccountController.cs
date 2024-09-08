@@ -24,12 +24,14 @@ namespace PL.MVC.Controllers
         private readonly IUsersBL _userBL;
         private readonly IEmailNotificationsBL _emailNotificationsBL;
         private readonly AesEncryption _encryption;
+        private readonly Random _random;
 
         public AccountController(IUsersBL userBL, IEmailNotificationsBL emailNotificationsBL, AesEncryption encryption)
         {
             _userBL = userBL;
             _emailNotificationsBL = emailNotificationsBL;
             _encryption = encryption;
+            _random = new Random();
         }
 
         public async Task<IActionResult> Index()
@@ -42,7 +44,8 @@ namespace PL.MVC.Controllers
             var user = UserModel.FromEntity((await _userBL.GetAsync(
                 new UsersSearchParams()
                 {
-                    Login = User.Identity.Name
+                    Login = User.Identity.Name,
+                    RegistrationStatus = UserRegistrationStatus.Confirmed
                 },
                 new UsersConvertParams()
                 {
@@ -130,7 +133,8 @@ namespace PL.MVC.Controllers
 
             var userLogin = (await _userBL.GetAsync(new UsersSearchParams()
             {
-                Login = model.Login
+                Login = model.Login,
+                RegistrationStatus = UserRegistrationStatus.Confirmed
             })).Objects;
 
             if (userLogin.Count > 0)
@@ -142,7 +146,8 @@ namespace PL.MVC.Controllers
 
             var userEmail = (await _userBL.GetAsync(new UsersSearchParams()
             {
-                Email = model.Email
+                Email = model.Email,
+                RegistrationStatus = UserRegistrationStatus.Confirmed
             })).Objects;
 
             if (userEmail.Count > 0)
@@ -154,7 +159,8 @@ namespace PL.MVC.Controllers
 
             var userPhoneNumber = (await _userBL.GetAsync(new UsersSearchParams()
             {
-                PhoneNumber = model.PhoneNumber
+                PhoneNumber = model.PhoneNumber,
+                RegistrationStatus = UserRegistrationStatus.Confirmed
             })).Objects;
 
             if (userPhoneNumber.Count > 0)
@@ -164,25 +170,81 @@ namespace PL.MVC.Controllers
                 return Json(response);
             }
 
-            var user = new User(
-                0,
-                model.Login,
-                model.Password,
-                model.Email,
-                model.PhoneNumber,
-                UserRole.Player,
-                false,
-                DateTime.Now);
+            User? user = (await _userBL.GetAsync(new UsersSearchParams()
+            {
+                Login = model.Login,
+                RegistrationStatus = UserRegistrationStatus.Unconfirmed
+            })).Objects.FirstOrDefault();
+
+            if (user != null)
+            {
+                user.Login = model.Login;
+                user.Password = model.Password;
+                user.Email = model.Email;
+                user.PhoneNumber = model.PhoneNumber;
+                user.RegistrationDate = DateTime.Now;
+            }
+            else
+            {
+                user = new User(
+                    0,
+                    model.Login,
+                    model.Password,
+                    model.Email,
+                    model.PhoneNumber,
+                    UserRole.Player,
+                    false,
+                    DateTime.Now,
+                    UserRegistrationStatus.Unconfirmed);
+            }
 
             var userId = await _userBL.AddOrUpdateAsync(user);
 
-            var identity = new CustomUserIdentity(userId, user.Login, user.Role);
+            int code = _random.Next(1000, 10000);
 
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(identity)
-            );
+            await _emailNotificationsBL.SendCodeConfirmation(model.Email, code);
 
+            CookieOptions options = new CookieOptions
+            {
+                Expires = DateTime.Now.AddMinutes(10),
+                HttpOnly = true,
+                Secure = true
+            };
+            Response.Cookies.Append("confirmationCode", code.ToString(), options);
+            Response.Cookies.Append("userId", userId.ToString(), options);
+
+            return Json(response);
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> VerifyCodeConfirmation([FromBody] CodeConfirmationRequest request)
+        {
+            var response = new BaseResponse();
+
+            string? codeFromCookies = Request.Cookies["confirmationCode"];
+            string? cookieUserId = Request.Cookies["userId"];
+
+            if (codeFromCookies != null && int.TryParse(cookieUserId, out int userId))
+            {
+                if (codeFromCookies == request.Code)
+                {
+                    var user = await _userBL.GetAsync(userId);
+                    user.RegistrationStatus = UserRegistrationStatus.Confirmed;
+                    await _userBL.AddOrUpdateAsync(user);
+
+                    var identity = new CustomUserIdentity(userId, user.Login, user.Role);
+
+                    await HttpContext.SignInAsync(
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        new ClaimsPrincipal(identity)
+                    );
+
+                    return Json(response);
+                }
+            }
+
+            response.IsSuccess = false;
+            response.TextError = "Invalid confirmation code!";
             return Json(response);
         }
 
@@ -190,7 +252,7 @@ namespace PL.MVC.Controllers
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
-            return RedirectToAction("Index", "Home", new { area = "Public" });
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpPost]
@@ -199,7 +261,8 @@ namespace PL.MVC.Controllers
         {
             var user = (await _userBL.GetAsync(new UsersSearchParams()
             {
-                Login = User.Identity!.Name
+                Login = User.Identity!.Name,
+                RegistrationStatus = UserRegistrationStatus.Confirmed
             })).Objects.FirstOrDefault()!;
 
             var response = new BaseResponse();
@@ -213,7 +276,8 @@ namespace PL.MVC.Controllers
 
             var userLogin = (await _userBL.GetAsync(new UsersSearchParams()
             {
-                Login = request.Login
+                Login = request.Login,
+                RegistrationStatus = UserRegistrationStatus.Confirmed
             })).Objects.FirstOrDefault();
 
             if (userLogin != null && userLogin.Id != user.Id)
@@ -225,7 +289,8 @@ namespace PL.MVC.Controllers
 
             var userEmail = (await _userBL.GetAsync(new UsersSearchParams()
             {
-                Email = request.Email
+                Email = request.Email,
+                RegistrationStatus = UserRegistrationStatus.Confirmed
             })).Objects.FirstOrDefault();
 
             if (userEmail != null && userEmail.Id != user.Id)
@@ -237,7 +302,8 @@ namespace PL.MVC.Controllers
 
             var userPhoneNumber = (await _userBL.GetAsync(new UsersSearchParams()
             {
-                PhoneNumber = request.PhoneNumber
+                PhoneNumber = request.PhoneNumber,
+                RegistrationStatus = UserRegistrationStatus.Confirmed
             })).Objects.FirstOrDefault();
 
             if (userPhoneNumber != null && userPhoneNumber.Id != user.Id)
@@ -274,7 +340,11 @@ namespace PL.MVC.Controllers
         {
             var response = new BaseResponse();
 
-            var userEmail = (await _userBL.GetAsync(new UsersSearchParams() { Email = recoveryPasswordRequest.Email })).Objects.FirstOrDefault();
+            var userEmail = (await _userBL.GetAsync(new UsersSearchParams()
+            {
+                Email = recoveryPasswordRequest.Email,
+                RegistrationStatus = UserRegistrationStatus.Confirmed
+            })).Objects.FirstOrDefault();
 
             if (userEmail == null)
             {

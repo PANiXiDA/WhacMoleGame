@@ -37,7 +37,8 @@ namespace PL.MVC.Controllers
             var player = UserModel.FromEntity((await _usersBL.GetAsync(
                 new UsersSearchParams()
                 {
-                    Login = User.Identity!.Name
+                    Login = User.Identity!.Name,
+                    RegistrationStatus = UserRegistrationStatus.Confirmed
                 },
                 new UsersConvertParams()
                 {
@@ -119,7 +120,8 @@ namespace PL.MVC.Controllers
             var player = UserModel.FromEntity((await _usersBL.GetAsync(
                 new UsersSearchParams()
                 {
-                    Login = User.Identity!.Name
+                    Login = User.Identity!.Name,
+                    RegistrationStatus = UserRegistrationStatus.Confirmed
                 })).Objects.FirstOrDefault()!);
 
             var game = new Game(
@@ -161,7 +163,8 @@ namespace PL.MVC.Controllers
             var player = UserModel.FromEntity((await _usersBL.GetAsync(
                 new UsersSearchParams()
                 {
-                    Login = User.Identity!.Name
+                    Login = User.Identity!.Name,
+                    RegistrationStatus = UserRegistrationStatus.Confirmed
                 })).Objects.FirstOrDefault()!);
 
             var game = (await _gamesBL.GetAsync(

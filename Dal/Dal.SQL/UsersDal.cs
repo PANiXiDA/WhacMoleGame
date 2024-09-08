@@ -28,6 +28,7 @@ namespace Dal.SQL
             dbObject.PhoneNumber = entity.PhoneNumber;
             dbObject.IsBlocked = entity.IsBlocked;
             dbObject.RegistrationDate = entity.RegistrationDate;
+            dbObject.RegistrationStatusId = (int)entity.RegistrationStatus;
 
             return Task.CompletedTask;
         }
@@ -39,19 +40,22 @@ namespace Dal.SQL
                 var rolesArray = searchParams.Roles.Cast<int>().ToArray();
                 dbObjects = dbObjects.Where(item => rolesArray.Contains(item.RoleId));
             }
-            if (searchParams.Login != null)
+            if (!string.IsNullOrEmpty(searchParams.Login))
             {
                 dbObjects = dbObjects.Where(item => item.Login == searchParams.Login);
             }
-            if (searchParams.Email != null)
+            if (!string.IsNullOrEmpty(searchParams.Email))
             {
                 dbObjects = dbObjects.Where(item => item.Email == searchParams.Email);
             }
-            if (searchParams.PhoneNumber != null)
+            if (!string.IsNullOrEmpty(searchParams.PhoneNumber))
             {
                 dbObjects = dbObjects.Where(item => item.PhoneNumber == searchParams.PhoneNumber);
             }
-
+            if (searchParams.RegistrationStatus.HasValue)
+            {
+                dbObjects = dbObjects.Where(item => item.RegistrationStatusId == (int)searchParams.RegistrationStatus);
+            }
             if (!string.IsNullOrEmpty(searchParams.SearchQuery))
             {
                 dbObjects = dbObjects.Where(item => item.Login.Contains(searchParams.SearchQuery));
@@ -100,7 +104,8 @@ namespace Dal.SQL
                 dbObject.PhoneNumber,
                 (UserRole)dbObject.RoleId,
                 dbObject.IsBlocked,
-                dbObject.RegistrationDate
+                dbObject.RegistrationDate,
+                (UserRegistrationStatus)dbObject.RegistrationStatusId
             )
             {
                 Sessions = isIncludeAdditional ? dbObject.Sessions.Select(SessionsDal.ConvertDbObjectToEntity).ToList() : new List<Entities.Session>()

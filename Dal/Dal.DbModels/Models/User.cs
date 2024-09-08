@@ -10,6 +10,7 @@
         public int RoleId { get; set; }
         public bool IsBlocked { get; set; }
         public DateTime RegistrationDate { get; set; }
+        public int RegistrationStatusId { get; set; }
 
         public virtual ICollection<Session> Sessions { get; set; }
 

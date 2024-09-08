@@ -9,6 +9,8 @@ namespace Common.SearchParams
         public string? Email { get; set; }
         public string? PhoneNumber {  get; set; }
         public IEnumerable<UserRole>? Roles { get; set; }
+        public UserRegistrationStatus? RegistrationStatus { get; set; }
+
         public UsersSearchParams() { }
         public UsersSearchParams(
             IEnumerable<UserRole>? roles = null,
@@ -17,12 +19,14 @@ namespace Common.SearchParams
             string? phoneNumber = null,
             string? searchQuery = null,
             int startIndex = 0,
-            int? objectsCount = null) : base(startIndex, objectsCount, searchQuery)
+            int? objectsCount = null,
+            UserRegistrationStatus? registrationStatusId = null) : base(startIndex, objectsCount, searchQuery)
         {
             Roles = roles;
             Login = login;
             Email = email;
             PhoneNumber = phoneNumber;
+            RegistrationStatus = registrationStatusId;
         }
     }
 }

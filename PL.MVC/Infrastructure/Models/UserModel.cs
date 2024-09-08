@@ -13,6 +13,7 @@ namespace PL.MVC.Infrastructure.Models
         public UserRole Role { get; set; }
         public bool IsBlocked { get; set; }
         public DateTime RegistrationDate { get; set; }
+        public UserRegistrationStatus RegistrationStatus { get; set; }
         public List<SessionModel> Sessions { get; set; } = new List<SessionModel>();
 
         public static UserModel FromEntity(User obj)
@@ -27,6 +28,7 @@ namespace PL.MVC.Infrastructure.Models
                 Role = obj.Role,
                 IsBlocked = obj.IsBlocked,
                 RegistrationDate = obj.RegistrationDate,
+                RegistrationStatus = obj.RegistrationStatus,
                 Sessions = SessionModel.FromEntitiesList(obj.Sessions)
             };
         }
@@ -41,7 +43,8 @@ namespace PL.MVC.Infrastructure.Models
                 obj.PhoneNumber,
                 obj.Role,
                 obj.IsBlocked,
-                obj.RegistrationDate);
+                obj.RegistrationDate,
+                obj.RegistrationStatus);
         }
 
         public static List<UserModel> FromEntitiesList(IEnumerable<User> list)

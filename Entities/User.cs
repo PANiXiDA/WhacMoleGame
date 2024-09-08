@@ -12,6 +12,7 @@ namespace Entities
         public UserRole Role { get; set; }
         public bool IsBlocked { get; set; }
         public DateTime RegistrationDate { get; set; }
+        public UserRegistrationStatus RegistrationStatus { get; set; }
 
         public List<Session> Sessions { get; set; } = new List<Session>();
 
@@ -23,7 +24,8 @@ namespace Entities
             string? phoneNumber,
             UserRole role,
             bool isBlocked,
-            DateTime registrationDate)
+            DateTime registrationDate,
+            UserRegistrationStatus registrationStatus)
         {
             Id = id;
             Login = login;
@@ -33,6 +35,7 @@ namespace Entities
             Role = role;
             IsBlocked = isBlocked;
             RegistrationDate = registrationDate;
+            RegistrationStatus = registrationStatus;
         }
     }
 }

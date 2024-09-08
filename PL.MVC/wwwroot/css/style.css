@@ -97,6 +97,7 @@ header {
 .button-group {
     display: flex;
     justify-content: space-between;
+    gap: 20px;
 }
 
 .btn-login, .btn-register {
@@ -238,7 +239,7 @@ a.btn-register {
     background-color: #2575fc;
     color: white;
     border: none;
-    padding: 15px;
+    padding: 5px;
     border-radius: 5px;
     font-size: 20px;
     cursor: pointer;
@@ -518,3 +519,16 @@ form {
     .close:focus {
         color: black;
     }
+
+#submitConfirmationCode {
+    background-color: #2575fc;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#confirmationModal .modal-content {
+    margin-top: 20%;
+}

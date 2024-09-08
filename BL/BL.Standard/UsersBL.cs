@@ -5,6 +5,7 @@ using Dal.Interfaces;
 using Common.SearchParams.Core;
 using Common.ConvertParams;
 using Common;
+using Common.Enums;
 
 namespace BL.Standard
 {
@@ -19,7 +20,7 @@ namespace BL.Standard
 
         public async Task<int> AddOrUpdateAsync(User entity)
         {
-            if (entity.Id == 0)
+            if (entity.RegistrationStatus != UserRegistrationStatus.Confirmed)
             {
                 entity.RegistrationDate = DateTime.Now;
             }
@@ -64,7 +65,11 @@ namespace BL.Standard
 
         public async Task<User?> VerifyPasswordAsync(string login, string password)
         {
-            var user = await GetAsync(login);
+            var user = (await GetAsync(new UsersSearchParams()
+            {
+                Login = login,
+                RegistrationStatus = UserRegistrationStatus.Confirmed
+            })).Objects.FirstOrDefault();
             return user != null && user.Password == Helpers.GetStringHash(password) ? user : null;
         }
     }
