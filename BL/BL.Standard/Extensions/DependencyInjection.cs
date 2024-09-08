@@ -12,6 +12,7 @@ namespace BL.Standard
             services.AddScoped<ISessionsBL, SessionsBL>();
             services.AddScoped<IFeedbacksBL, FeedbacksBL>();
             services.AddScoped<IEmailNotificationsBL, EmailNotificationsBL>();
+            services.AddScoped<IConfirmationCodesBL, ConfirmationCodesBL>();
 
             return services;
         }

@@ -1,6 +1,6 @@
 ﻿namespace PL.MVC.Infrastructure.Requests
 {
-    public class CodeConfirmationRequest
+    public class ConfirmationCodeRequest
     {
         public string Code {  get; set; }
     }

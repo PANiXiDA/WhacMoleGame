@@ -23,13 +23,19 @@ namespace PL.MVC.Controllers
     {
         private readonly IUsersBL _userBL;
         private readonly IEmailNotificationsBL _emailNotificationsBL;
+        private readonly IConfirmationCodesBL _confirmationCodesBL;
         private readonly AesEncryption _encryption;
         private readonly Random _random;
 
-        public AccountController(IUsersBL userBL, IEmailNotificationsBL emailNotificationsBL, AesEncryption encryption)
+        public AccountController(
+            IUsersBL userBL,
+            IEmailNotificationsBL emailNotificationsBL,
+            IConfirmationCodesBL confirmationCodesBL,
+            AesEncryption encryption)
         {
             _userBL = userBL;
             _emailNotificationsBL = emailNotificationsBL;
+            _confirmationCodesBL = confirmationCodesBL;
             _encryption = encryption;
             _random = new Random();
         }
@@ -202,6 +208,13 @@ namespace PL.MVC.Controllers
 
             int code = _random.Next(1000, 10000);
 
+            var entityCode = new ConfirmationCode(
+                0,
+                code.ToString()
+                );
+
+            var confirmationCodeId = await _confirmationCodesBL.AddOrUpdateAsync(entityCode);
+
             await _emailNotificationsBL.SendCodeConfirmation(model.Email, code);
 
             CookieOptions options = new CookieOptions
@@ -210,23 +223,25 @@ namespace PL.MVC.Controllers
                 HttpOnly = true,
                 Secure = true
             };
-            Response.Cookies.Append("confirmationCode", code.ToString(), options);
+            Response.Cookies.Append("confirmationCodeId", confirmationCodeId.ToString(), options);
             Response.Cookies.Append("userId", userId.ToString(), options);
 
             return Json(response);
         }
 
         [HttpPost]
-        public async Task<JsonResult> VerifyCodeConfirmation([FromBody] CodeConfirmationRequest request)
+        public async Task<JsonResult> VerifyCodeConfirmation([FromBody] ConfirmationCodeRequest request)
         {
             var response = new BaseResponse();
 
-            string? codeFromCookies = Request.Cookies["confirmationCode"];
+            string? cookieCodeId = Request.Cookies["confirmationCodeId"];
             string? cookieUserId = Request.Cookies["userId"];
 
-            if (codeFromCookies != null && int.TryParse(cookieUserId, out int userId))
+            if (int.TryParse(cookieCodeId, out int codeId) && int.TryParse(cookieUserId, out int userId))
             {
-                if (codeFromCookies == request.Code)
+                var confirmationCode = await _confirmationCodesBL.GetAsync(codeId);
+
+                if (confirmationCode.Code == request.Code)
                 {
                     var user = await _userBL.GetAsync(userId);
                     user.RegistrationStatus = UserRegistrationStatus.Confirmed;

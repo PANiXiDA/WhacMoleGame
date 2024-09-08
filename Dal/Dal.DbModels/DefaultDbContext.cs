@@ -13,6 +13,7 @@ namespace Dal.DbModels
         public virtual DbSet<Game> Games { get; set; }
         public virtual DbSet<Session> Sessions { get; set; }
         public virtual DbSet<Feedback> Feedbacks { get; set; }
+        public virtual DbSet<ConfirmationCode> ConfirmationCodes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
