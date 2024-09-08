@@ -6,6 +6,7 @@ using System.Web;
 using MailKit.Net.Smtp;
 using Tools.SymmetricEncryption.AesEncryption;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Configuration;
 
 namespace BL.Standard
 {
@@ -13,17 +14,19 @@ namespace BL.Standard
     {
         private readonly SmtpConfiguration _smtpConfiguration;
         private readonly AesEncryption _encryption;
+        private readonly string? _domen;
 
-        public EmailNotificationsBL(IOptions<SmtpConfiguration> smtpConfiguration, AesEncryption encryption)
+        public EmailNotificationsBL(IOptions<SmtpConfiguration> smtpConfiguration, AesEncryption encryption, IConfiguration configuration)
         {
             _smtpConfiguration = smtpConfiguration.Value;
             _encryption = encryption;
+            _domen = configuration["Domen"];
         }
 
         public async Task SendRecoveryPasswordEmailAsync(string toEmail, User user)
         {
             var token = HttpUtility.UrlEncode(_encryption.Encrypt(user));
-            var url = $"https://localhost:7075/Account/VerifyUser?tokenKey={token}";
+            var url = $"{_domen}/Account/VerifyUser?tokenKey={token}";
 
             string subject = "Recovery password";
             string body = $"To log in without a password, follow the link provided: <a href=\"{url}\" target=\"_blank\">Recover password</a>";

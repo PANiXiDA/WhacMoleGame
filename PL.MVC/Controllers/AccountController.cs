@@ -16,7 +16,6 @@ using Microsoft.AspNetCore.Authorization;
 using Common;
 using Common.ConvertParams;
 using Tools.SymmetricEncryption.AesEncryption;
-using Microsoft.Extensions.Options;
 
 namespace PL.MVC.Controllers
 {
